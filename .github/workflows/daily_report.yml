@@ -2,39 +2,38 @@ name: Morning Dashboard Updater
 
 on:
   schedule:
-    - cron: '0 4 * * 1-5'
-  workflow_dispatch:
+    # Runs at 6:00 AM EAT (3:00 AM UTC) every day
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
 
 jobs:
-  update-dashboard:
+  scrape-and-publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Install Dependencies
         run: |
-          npm install
-          npm install puppeteer-extra puppeteer-extra-plugin-stealth
-        
+          npm install puppeteer puppeteer-extra puppeteer-extra-plugin-stealth nodemailer
+
       - name: Run Scraping and Email Script
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           BOSS_EMAIL: ${{ secrets.BOSS_EMAIL }}
         run: node daily_mailer.js
-        
-      - name: Save Website Changes to GitHub
+
+      - name: Commit and Push Changes
         run: |
-          git config --global user.name 'Intelligence Robot'
-          git config --global user.email 'actions@github.com'
-          git add index.html
-          git commit -m "Automated Morning Price Update" || echo "No changes to commit"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html Nefas_Silk_Morning_Brief.pdf
+          git commit -m "Auto-update dashboard and executive PDF" || exit 0
           git push

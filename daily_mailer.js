@@ -3,33 +3,26 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
-// The file we are updating
 const FILE_NAME = 'index.html';
 
-// Helper function to scrape Trading Economics (Stealth Mode)
-async function scrapePrice(browser, url) {
+// Helper function to scrape Yahoo Finance
+async function scrapeYahooFinance(browser, url) {
     console.log(`Scraping live data from: ${url}`);
     const page = await browser.newPage();
     
-    // Disguise the robot as a real human on a normal Windows computer
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-    await page.setExtraHTTPHeaders({
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Upgrade-Insecure-Requests': '1'
-    });
+    // Set a standard user agent
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
     await page.setViewport({ width: 1920, height: 1080 });
 
     try {
-        // Give the page more time to load (30 seconds)
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
         
-        // Pause for 5 seconds to let the website's anti-bot security finish loading
-        await new Promise(r => setTimeout(r, 5000)); 
+        // Wait a brief moment for dynamic elements to load
+        await new Promise(r => setTimeout(r, 2000));
 
         const price = await page.evaluate(() => {
-            // Check for the price using a few different hidden codes the website uses
-            const el = document.querySelector('#market_last') || document.querySelector('.market-last') || document.querySelector('#market-last');
+            // Yahoo Finance uses specific data-testid attributes for live prices
+            const el = document.querySelector('fin-streamer[data-field="regularMarketPrice"]');
             return el ? el.innerText.trim() : null;
         });
         
@@ -46,37 +39,42 @@ async function generateAndPublishDashboard() {
     let browser;
     try {
         console.log('Launching headless browser...');
-        browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        browser = await puppeteer.launch({ 
+            headless: 'new', 
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+        });
 
-        // 1. Scrape Live Coffee Prices
-        let arabicaLivePrice = await scrapePrice(browser, 'https://tradingeconomics.com/commodity/coffee');
-        let robustaLivePrice = await scrapePrice(browser, 'https://tradingeconomics.com/commodity/robusta-coffee');
+        // Scrape KC=F (Coffee Futures) for Arabica
+        let arabicaLivePrice = await scrapeYahooFinance(browser, 'https://finance.yahoo.com/quote/KC=F');
+        
+        // Yahoo Finance provides this in US cents per pound (e.g., 278.10). 
+        // We will convert it to Dollars per pound.
+        if (arabicaLivePrice) {
+            let numericPrice = parseFloat(arabicaLivePrice.replace(/,/g, ''));
+            arabicaLivePrice = '$' + (numericPrice / 100).toFixed(2) + ' / lb';
+        }
 
-        // Format to Dollars
-        if (arabicaLivePrice) arabicaLivePrice = '$' + (parseFloat(arabicaLivePrice) / 100).toFixed(2) + ' / lb';
-        if (robustaLivePrice) robustaLivePrice = '$' + robustaLivePrice + ' / MT';
+        // Note: Yahoo Finance does not track London Robusta futures directly. 
+        // For now, we will leave it as N/A or keep the old Trading Economics link if you prefer to mix sources.
+        let robustaLivePrice = "Data Source Pending"; 
 
-        // 2. Load the base HTML Dashboard (index.html)
         const page = await browser.newPage();
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);
         await page.goto(filePath, { waitUntil: 'networkidle0' });
 
         const dateStr = new Date().toLocaleString('en-US', { timeZone: 'Africa/Addis_Ababa' });
 
-        // 3. Inject new data into the HTML
         await page.evaluate((arabica, robusta, dateStr) => {
             if (arabica) document.getElementById('arabica-price').innerText = arabica;
             if (robusta) document.getElementById('robusta-price').innerText = robusta;
             document.getElementById('report-date').innerText = "Last Updated: " + dateStr;
         }, arabicaLivePrice, robustaLivePrice, dateStr);
 
-        // 4. Overwrite index.html with the new updated code
         const updatedHTML = await page.content();
         fs.writeFileSync(path.join(__dirname, FILE_NAME), updatedHTML);
         console.log('Website HTML successfully updated on the server!');
         await browser.close();
 
-        // 5. Send Email Alert with the Website Link
         console.log('Sending Email Alert...');
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -86,8 +84,7 @@ async function generateAndPublishDashboard() {
             }
         });
 
-        // Determine the GitHub Pages URL automatically from environment variables
-        const githubRepo = process.env.GITHUB_REPOSITORY; // looks like "username/repository"
+        const githubRepo = process.env.GITHUB_REPOSITORY;
         let websiteUrl = "Your GitHub Pages URL";
         if (githubRepo) {
             const parts = githubRepo.split('/');

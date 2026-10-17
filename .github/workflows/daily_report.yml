@@ -1,4 +1,18 @@
- - name: Checkout Code
+name: Morning Dashboard Updater
+
+on:
+schedule:
+- cron: '0 4 * * 1-5'
+workflow_dispatch:
+
+jobs:
+update-dashboard:
+runs-on: ubuntu-latest
+permissions:
+contents: write
+
+steps:
+  - name: Checkout Code
     uses: actions/checkout@v4
 
   - name: Setup Node.js

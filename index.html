@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nefas Silk - Morning Intelligence Brief</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .section-title { border-left: 4px solid #0f172a; padding-left: 8px; margin-bottom: 16px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end border-b-2 border-slate-800 pb-4 mb-8">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Nefas Silk Intelligence Desk</h1>
+                <p class="text-sm text-slate-500 font-medium uppercase tracking-widest mt-1">Daily Operational Briefing</p>
+            </div>
+            <div class="text-left md:text-right mt-4 md:mt-0">
+                <p class="text-sm font-semibold text-slate-700" id="report-date">Generated: Today</p>
+                <p class="text-xs text-slate-500">Confidential - Internal Use Only</p>
+            </div>
+        </div>
+
+        <!-- ZONE 1: EXPORT OPERATIONS -->
+        <h2 class="section-title border-l-green-600">Export Operations: Ag-Commodities</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <a href="https://tradingeconomics.com/commodity/coffee" target="_blank" class="card p-4 border-t-4 border-t-green-500 block">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">NY Arabica ↗</p>
+                <p class="text-xl md:text-2xl font-bold text-slate-800" id="arabica-price">Updating...</p>
+                <p class="text-xs text-slate-400 mt-1">Global Benchmark</p>
+            </a>
+            <a href="https://tradingeconomics.com/commodity/robusta-coffee" target="_blank" class="card p-4 border-t-4 border-t-green-500 block">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">London Robusta ↗</p>
+                <p class="text-xl md:text-2xl font-bold text-slate-800" id="robusta-price">Updating...</p>
+                <p class="text-xs text-slate-400 mt-1">Global Benchmark</p>
+            </a>
+            <div class="card p-4 border-t-4 border-t-emerald-600">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">ICO Composite</p>
+                <p class="text-xl md:text-2xl font-bold text-slate-800" id="ico-price">Pending</p>
+                <p class="text-xs text-slate-400 mt-1">Daily Indicator</p>
+            </div>
+            <div class="card p-4 border-t-4 border-t-yellow-500">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Sesame (Global)</p>
+                <p class="text-xl md:text-2xl font-bold text-slate-800" id="sesame-price">Pending</p>
+                <p class="text-xs text-slate-400 mt-1">Metric Ton (MT)</p>
+            </div>
+        </div>
+
+        <!-- ZONE 2: IMPORT OPERATIONS -->
+        <h2 class="section-title border-l-blue-600">Import Operations: Manufacturing Raw Materials</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="card p-4 border-t-4 border-t-blue-500">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Paint Chemicals (TiO2)</p>
+                <p class="text-xl font-bold text-slate-800" id="titanium-price">Awaiting Data</p>
+                <p class="text-xs text-slate-400 mt-1">Titanium Dioxide Proxy</p>
+            </div>
+            <div class="card p-4 border-t-4 border-t-blue-500">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Plastic Resins (PET/HDPE)</p>
+                <p class="text-xl font-bold text-slate-800" id="resin-price">Awaiting Data</p>
+                <p class="text-xs text-slate-400 mt-1">Petrochemical Index</p>
+            </div>
+            <div class="card p-4 border-t-4 border-t-blue-500">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Tyre Inputs (Rubber)</p>
+                <p class="text-xl font-bold text-slate-800" id="rubber-price">Awaiting Data</p>
+                <p class="text-xs text-slate-400 mt-1">Natural Rubber Index</p>
+            </div>
+        </div>
+
+        <!-- ZONE 3: MACRO & LOGISTICS -->
+        <h2 class="section-title border-l-purple-600">Macro Economy & Supply Chain</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div class="card p-4 bg-slate-50">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Forex: USD to ETB</p>
+                <p class="text-lg font-bold text-slate-800" id="cbe-rate">Awaiting Data</p>
+                <p class="text-xs text-slate-500">Official Rate Monitor</p>
+            </div>
+            <div class="card p-4 bg-slate-50">
+                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Red Sea Freight Index</p>
+                <p class="text-lg font-bold text-slate-800" id="freight-index">Awaiting Data</p>
+                <p class="text-xs text-slate-500">Shanghai to East Africa Proxy</p>
+            </div>
+        </div>
+
+        <!-- ZONE 4: POLICY & NEWS -->
+        <h2 class="section-title border-l-red-600">Policy Updates & Market Intelligence</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card p-5">
+                <h3 class="text-sm font-bold text-slate-800 mb-3 border-b pb-2">🇪🇹 Min. of Trade & Industry Updates</h3>
+                <ul class="text-sm space-y-3" id="trade-news">
+                    <li class="text-slate-600 italic text-xs">Waiting for next automation cycle to fetch policy updates...</li>
+                </ul>
+            </div>
+            <div class="card p-5">
+                <h3 class="text-sm font-bold text-slate-800 mb-3 border-b pb-2">🌍 Global Supply Chain News</h3>
+                <ul class="text-sm space-y-3" id="global-news">
+                    <li class="text-slate-600 italic text-xs">Waiting for next automation cycle to fetch global logistics news...</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center text-xs text-slate-400">
+            <p>Automated via GitHub Actions & Node.js Puppeteer</p>
+        </div>
+    </div>
+
+</body>
+</html>

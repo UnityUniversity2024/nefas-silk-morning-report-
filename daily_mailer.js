@@ -100,3 +100,4 @@ async function generateAndPublishDashboard() {
         if (browser) await browser.close();
     }
 }
+generateAndPublishDashboard();

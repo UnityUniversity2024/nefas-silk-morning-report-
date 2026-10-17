@@ -1,3 +1,4 @@
+JavaScript
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
@@ -8,7 +9,6 @@ const fs = require('fs');
 
 const FILE_NAME = 'index.html';
 
-// --- 1. MULTI-CURRENCY & API FETCHERS ---
 async function fetchArabicaPrice() {
     try {
         const response = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/KC=F');
@@ -36,7 +36,6 @@ async function fetchForexRates() {
     }
 }
 
-// --- 2. WEB SCRAPERS ---
 async function scrapeInvestingCom(browser, url) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
@@ -55,7 +54,6 @@ async function scrapeInvestingCom(browser, url) {
     }
 }
 
-// --- 3. MAIN WORKFLOW ---
 async function generateAndPublishDashboard() {
     let browser;
     try {

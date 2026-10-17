@@ -1,4 +1,3 @@
-JavaScript
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
@@ -9,13 +8,17 @@ const fs = require('fs');
 
 const FILE_NAME = 'index.html';
 
+// --- 1. MULTI-CURRENCY & API FETCHERS ---
 async function fetchArabicaPrice() {
     try {
         const response = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/KC=F');
         const data = await response.json();
         const price = data.chart.result[0].meta.regularMarketPrice;
         return price ? '$' + (parseFloat(price) / 100).toFixed(2) + ' / lb' : null;
-    } catch (e) { return null; }
+    } catch (e) { 
+        console.log('Warning: Could not fetch Arabica API:', e.message);
+        return null; 
+    }
 }
 
 async function fetchForexRates() {
@@ -32,10 +35,12 @@ async function fetchForexRates() {
             AED: (etb / data.rates.AED).toFixed(2)
         };
     } catch (e) {
+        console.log('Warning: Could not fetch Forex rates:', e.message);
         return { USD: null, EUR: null, GBP: null, CNY: null, AED: null };
     }
 }
 
+// --- 2. COMMODITY SCRAPERS ---
 async function scrapeInvestingCom(browser, url) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
@@ -49,14 +54,17 @@ async function scrapeInvestingCom(browser, url) {
         await page.close();
         return price;
     } catch (e) {
+        console.log(`Warning: Failed scraping ${url}:`, e.message);
         await page.close();
         return null;
     }
 }
 
+// --- 3. MAIN WORKFLOW ---
 async function generateAndPublishDashboard() {
     let browser;
     try {
+        console.log('Initiating real-time data collection...');
         const [arabicaLivePrice, forexRates] = await Promise.all([
             fetchArabicaPrice(),
             fetchForexRates()
@@ -79,9 +87,14 @@ async function generateAndPublishDashboard() {
         let soyLivePrice = soyRaw ? '$' + soyRaw + ' / bu' : null;
         let rubberLivePrice = rubberRaw ? '$' + rubberRaw + ' / kg' : null;
 
+        console.log('Updating HTML template with live values...');
         const page = await browser.newPage();
+        await page.setViewport({ width: 1440, height: 900 });
+
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);
-        await page.goto(filePath, { waitUntil: 'networkidle0' });
+
+        // FIX: Use networkidle2 + 60s timeout so background TradingView requests do not trigger exit code 1
+        await page.goto(filePath, { waitUntil: 'networkidle2', timeout: 60000 });
 
         const dateStr = new Date().toLocaleString('en-US', { timeZone: 'Africa/Addis_Ababa' });
 
@@ -101,31 +114,61 @@ async function generateAndPublishDashboard() {
             document.getElementById('report-date').innerText = "Last Updated: " + dateStr;
         }, arabicaLivePrice, robustaLivePrice, brentLivePrice, soyLivePrice, rubberLivePrice, forexRates, dateStr);
 
+        // Save updated HTML to disk
         const updatedHTML = await page.content();
         fs.writeFileSync(path.join(__dirname, FILE_NAME), updatedHTML);
-        
+        console.log('HTML file successfully updated.');
+
+        // Pause 6 seconds to give TradingView iframes sufficient time to draw before taking the PDF snapshot
+        await new Promise(resolve => setTimeout(resolve, 6000));
+
+        console.log('Rendering executive PDF brief...');
         const pdfPath = path.join(__dirname, 'Nefas_Silk_Morning_Brief.pdf');
-        await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' } });
+        await page.pdf({ 
+            path: pdfPath, 
+            format: 'A4', 
+            printBackground: true, 
+            margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' } 
+        });
+        console.log('PDF brief successfully created.');
+
         await browser.close();
 
+        // --- 4. DISPATCH EMAIL ---
+        console.log('Dispatching executive email...');
         const transporter = nodemailer.createTransport({
             service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            auth: { 
+                user: process.env.EMAIL_USER, 
+                pass: process.env.EMAIL_PASS 
+            }
         });
+
+        const githubRepo = process.env.GITHUB_REPOSITORY;
+        const websiteUrl = githubRepo 
+            ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/` 
+            : 'Dashboard Link';
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.BOSS_EMAIL,
             subject: `ET Nefas Silk Executive Brief - ${dateStr}`,
-            text: `Good morning,\n\nThe live intelligence briefing has been updated with multi-currency tracking, live market graphs, and commercial tire benchmarks.\n\nAttached is your daily PDF report.`,
+            text: `Good morning,\n\nThe live intelligence briefing has been updated with multi-currency tracking, live market graphs, and commercial tire benchmarks.\n\n` +
+                  `Attached is your daily PDF report.\n\n` +
+                  `🌐 View the live web version here:\n${websiteUrl}\n\n` +
+                  `Automated by Nefas Silk Intelligence Desk.`,
             attachments: [{ filename: `Nefas_Silk_Morning_Brief.pdf`, path: pdfPath }]
         };
 
         await transporter.sendMail(mailOptions);
+        console.log('Executive brief email dispatched successfully.');
+
     } catch (error) {
-        console.error('Fatal error:', error);
+        console.error('Fatal error during automation run:', error);
+        process.exit(1);
     } finally {
         if (browser) await browser.close();
     }
 }
+
 generateAndPublishDashboard();

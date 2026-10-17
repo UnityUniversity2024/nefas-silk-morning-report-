@@ -6,8 +6,41 @@ const fs = require('fs');
 // The file we are updating
 const FILE_NAME = 'index.html'; 
 
-// Helper function to scrape Trading Economics
+// Helper function to scrape Trading Economics (Stealth Mode)
 async function scrapePrice(browser, url) {
+    console.log(`Scraping live data from: ${url}`);
+    const page = await browser.newPage();
+    
+    // Disguise the robot as a real human on a normal Windows computer
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Upgrade-Insecure-Requests': '1'
+    });
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    try {
+        // Give the page more time to load (30 seconds)
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        
+        // Pause for 5 seconds to let the website's anti-bot security finish loading
+        await new Promise(r => setTimeout(r, 5000)); 
+
+        const price = await page.evaluate(() => {
+            // Check for the price using a few different hidden codes the website uses
+            const el = document.querySelector('#market_last') || document.querySelector('.market-last') || document.querySelector('#market-last');
+            return el ? el.innerText.trim() : null;
+        });
+        
+        await page.close();
+        return price;
+    } catch (e) {
+        console.log(`Warning: Could not scrape ${url}`);
+        await page.close();
+        return null;
+    }
+}
     console.log(`Scraping live data from: ${url}`);
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');

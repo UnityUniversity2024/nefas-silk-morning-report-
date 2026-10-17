@@ -25,6 +25,7 @@ async function fetchArabicaPrice() {
 async function fetchUsdEtbRate() {
     console.log('Fetching CBE USD/ETB official rate...');
     try {
+        // The CBE API requires the date in YYYY-MM-DD format
         const dateStr = new Date().toISOString().slice(0, 10);
         const response = await fetch(`https://combanketh.et/cbeapi/daily-exchange-rates/?_limit=1&Date=${dateStr}`);
         const data = await response.json();

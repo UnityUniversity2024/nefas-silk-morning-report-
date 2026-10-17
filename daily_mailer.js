@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer-extra');
+onst puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
@@ -8,17 +8,43 @@ const fs = require('fs');
 
 const FILE_NAME = 'index.html';
 
-// 1. New, Bulletproof Data Fetcher (Bypasses all website bot-blockers)
-async function fetchPriceDirectly(symbol) {
-    console.log(`Fetching raw market data for: ${symbol}`);
+// 1. API Fetcher for NY Arabica (Bulletproof)
+async function fetchArabicaPrice() {
+    console.log(`Fetching raw market data for Arabica (KC=F)`);
     try {
-        // This asks Yahoo Finance's hidden data server for the raw number directly
-        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/KC=F`);
         const data = await response.json();
         const price = data.chart.result[0].meta.regularMarketPrice;
         return price.toString();
     } catch (e) {
-        console.log(`Warning: Could not fetch data for ${symbol}`);
+        console.log(`Warning: Could not fetch Arabica data via API`);
+        return null;
+    }
+}
+
+// 2. HTML Scraper for London Robusta
+async function scrapeRobustaPrice(browser) {
+    const url = 'https://www.investing.com/commodities/london-coffee';
+    console.log(`Scraping live data from: ${url}`);
+    const page = await browser.newPage();
+    
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    try {
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await new Promise(r => setTimeout(r, 4000)); // Brief pause for data to load
+
+        const price = await page.evaluate(() => {
+            // Investing.com uses a specific data-test attribute for the live price
+            const el = document.querySelector('[data-test="instrument-price-last"]');
+            return el ? el.innerText.trim() : null;
+        });
+        
+        await page.close();
+        return price;
+    } catch (e) {
+        console.log(`Warning: Could not scrape Robusta from Investing.com`);
+        await page.close();
         return null;
     }
 }
@@ -26,23 +52,26 @@ async function fetchPriceDirectly(symbol) {
 async function generateAndPublishDashboard() {
     let browser;
     try {
-        // Scrape KC=F (Coffee Futures) for Arabica using the API
-        let arabicaLivePrice = await fetchPriceDirectly('KC=F');
-        
-        // Format the raw API number (e.g., 308.85) to Dollars per pound.
+        // Get Arabica via API
+        let arabicaLivePrice = await fetchArabicaPrice();
         if (arabicaLivePrice) {
             let numericPrice = parseFloat(arabicaLivePrice);
             arabicaLivePrice = '$' + (numericPrice / 100).toFixed(2) + ' / lb';
         }
 
-        // Yahoo's API doesn't cleanly track London Robusta, so we will mark it pending for now.
-        let robustaLivePrice = "Data Source Pending"; 
-
-        console.log('Launching headless browser to update HTML...');
+        console.log('Launching browser to scrape Robusta and update HTML...');
         browser = await puppeteer.launch({ 
             headless: 'new', 
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'] 
         });
+
+        // Get Robusta via Puppeteer scraper
+        let robustaLivePrice = await scrapeRobustaPrice(browser);
+        if (robustaLivePrice) {
+            // Remove commas from the raw number (e.g., "3,422.00")
+            let numericRobusta = robustaLivePrice.replace(/,/g, '');
+            robustaLivePrice = '$' + numericRobusta + ' / MT';
+        }
 
         const page = await browser.newPage();
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);

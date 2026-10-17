@@ -20,7 +20,9 @@ jobs:
           node-version: '20'
           
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install puppeteer-extra puppeteer-extra-plugin-stealth
         
       - name: Run Scraping and Email Script
         env:

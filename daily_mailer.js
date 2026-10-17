@@ -1,36 +1,24 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
 const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
 const FILE_NAME = 'index.html';
 
-// Helper function to scrape Yahoo Finance
-async function scrapeYahooFinance(browser, url) {
-    console.log(`Scraping live data from: ${url}`);
-    const page = await browser.newPage();
-    
-    // Set a standard user agent
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
-    await page.setViewport({ width: 1920, height: 1080 });
-
+// 1. New, Bulletproof Data Fetcher (Bypasses all website bot-blockers)
+async function fetchPriceDirectly(symbol) {
+    console.log(`Fetching raw market data for: ${symbol}`);
     try {
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        
-        // Wait a brief moment for dynamic elements to load
-        await new Promise(r => setTimeout(r, 2000));
-
-        const price = await page.evaluate(() => {
-            // Yahoo Finance uses specific data-testid attributes for live prices
-            const el = document.querySelector('fin-streamer[data-field="regularMarketPrice"]');
-            return el ? el.innerText.trim() : null;
-        });
-        
-        await page.close();
-        return price;
+        // This asks Yahoo Finance's hidden data server for the raw number directly
+        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+        const data = await response.json();
+        const price = data.chart.result[0].meta.regularMarketPrice;
+        return price.toString();
     } catch (e) {
-        console.log(`Warning: Could not scrape ${url}`);
-        await page.close();
+        console.log(`Warning: Could not fetch data for ${symbol}`);
         return null;
     }
 }
@@ -38,25 +26,23 @@ async function scrapeYahooFinance(browser, url) {
 async function generateAndPublishDashboard() {
     let browser;
     try {
-        console.log('Launching headless browser...');
+        // Scrape KC=F (Coffee Futures) for Arabica using the API
+        let arabicaLivePrice = await fetchPriceDirectly('KC=F');
+        
+        // Format the raw API number (e.g., 308.85) to Dollars per pound.
+        if (arabicaLivePrice) {
+            let numericPrice = parseFloat(arabicaLivePrice);
+            arabicaLivePrice = '$' + (numericPrice / 100).toFixed(2) + ' / lb';
+        }
+
+        // Yahoo's API doesn't cleanly track London Robusta, so we will mark it pending for now.
+        let robustaLivePrice = "Data Source Pending"; 
+
+        console.log('Launching headless browser to update HTML...');
         browser = await puppeteer.launch({ 
             headless: 'new', 
             args: ['--no-sandbox', '--disable-setuid-sandbox'] 
         });
-
-        // Scrape KC=F (Coffee Futures) for Arabica
-        let arabicaLivePrice = await scrapeYahooFinance(browser, 'https://finance.yahoo.com/quote/KC=F');
-        
-        // Yahoo Finance provides this in US cents per pound (e.g., 278.10). 
-        // We will convert it to Dollars per pound.
-        if (arabicaLivePrice) {
-            let numericPrice = parseFloat(arabicaLivePrice.replace(/,/g, ''));
-            arabicaLivePrice = '$' + (numericPrice / 100).toFixed(2) + ' / lb';
-        }
-
-        // Note: Yahoo Finance does not track London Robusta futures directly. 
-        // For now, we will leave it as N/A or keep the old Trading Economics link if you prefer to mix sources.
-        let robustaLivePrice = "Data Source Pending"; 
 
         const page = await browser.newPage();
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);

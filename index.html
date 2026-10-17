@@ -13,18 +13,17 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans p-4 md:p-8 antialiased">
 
-    <div class="max-w-6xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
         
-        <!-- Header Section with Logo -->
+        <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-center border-b-2 border-slate-800 pb-6 mb-8">
             <div class="flex items-center gap-6">
-                <!-- Using the requested logo file -->
-                <a href="https://www.nefassilkpaints.com" target="_blank">
-                    <img src="Screenshot 2026-09-16 120357.png" alt="Nefas Silk Logo" class="h-16 object-contain hover:opacity-80 transition">
+                <a href="https://nefassilkpaints.com/" target="_blank">
+                    <img src="https://unityuniversity2024.github.io/nefas-silk-morning-report-/Screenshot%202026-09-16%20120357.png" alt="Nefas Silk Logo" class="h-16 object-contain hover:opacity-80 transition">
                 </a>
                 <div>
                     <h1 class="text-3xl font-black text-slate-900 tracking-tight">Intelligence Desk</h1>
-                    <a href="https://www.nefassilkpaints.com" class="text-sm text-red-700 font-bold uppercase tracking-widest hover:underline">www.nefassilkpaints.com</a>
+                    <a href="https://nefassilkpaints.com/" class="text-sm text-red-700 font-bold uppercase tracking-widest hover:underline">Global Operations</a>
                 </div>
             </div>
             <div class="text-right mt-4 md:mt-0 flex flex-col items-end">
@@ -35,9 +34,57 @@
             </div>
         </div>
 
-        <!-- Export Markets -->
+        <!-- Live Market Graphs (Interactive) -->
         <div class="mb-10">
-            <h2 class="section-header border-l-emerald-600">Export Operations: Ag-Commodities</h2>
+            <h2 class="section-header border-l-slate-800">Live Market Trends</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm h-80">
+                    <div class="tradingview-widget-container h-full">
+                      <div id="tv_coffee" class="h-full"></div>
+                      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                      <script type="text/javascript">
+                      new TradingView.widget({
+                      "autosize": true,
+                      "symbol": "ICEUS:KC1!",
+                      "interval": "D",
+                      "timezone": "Africa/Addis_Ababa",
+                      "theme": "light",
+                      "style": "2",
+                      "locale": "en",
+                      "enable_publishing": false,
+                      "hide_top_toolbar": true,
+                      "save_image": false,
+                      "container_id": "tv_coffee"
+                    });
+                      </script>
+                    </div>
+                </div>
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm h-80">
+                    <div class="tradingview-widget-container h-full">
+                      <div id="tv_oil" class="h-full"></div>
+                      <script type="text/javascript">
+                      new TradingView.widget({
+                      "autosize": true,
+                      "symbol": "TVC:UKOIL",
+                      "interval": "D",
+                      "timezone": "Africa/Addis_Ababa",
+                      "theme": "light",
+                      "style": "2",
+                      "locale": "en",
+                      "enable_publishing": false,
+                      "hide_top_toolbar": true,
+                      "save_image": false,
+                      "container_id": "tv_oil"
+                    });
+                      </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agro-Exports Portfolio -->
+        <div class="mb-10">
+            <h2 class="section-header border-l-emerald-600">Agro-Exports (FX Generation)</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                 <div class="card bg-slate-50 border-t-4 border-t-emerald-500 p-6 rounded-xl border border-slate-200 shadow-sm">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">NY Arabica (Coffee)</p>
@@ -48,75 +95,86 @@
                     <p class="text-3xl font-black text-slate-800 mb-1" id="robusta-price">Updating...</p>
                 </div>
                 <div class="card bg-slate-50 border-t-4 border-t-amber-500 p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Chinese Sesame (Mysteel)</p>
-                    <p class="text-3xl font-black text-slate-800 mb-1" id="sesame-price">Updating...</p>
-                    <p class="text-xs text-slate-400">Qingdao Port Import Grade 1</p>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Soya Beans</p>
+                    <p class="text-3xl font-black text-slate-800 mb-1" id="soy-price">Updating...</p>
+                    <p class="text-xs text-slate-400">Global Futures Proxy</p>
+                </div>
+                <div class="card bg-slate-50 border-t-4 border-t-amber-500 p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Green Mung / Pea Beans</p>
+                    <p class="text-xl font-bold text-slate-800 mb-1">Awaiting Tridge API</p>
+                    <p class="text-xs text-slate-400">Regional Price Indicator</p>
                 </div>
             </div>
         </div>
 
-        <!-- Import & Manufacturing -->
+        <!-- Paint Manufacturing Inputs -->
         <div class="mb-10">
-            <h2 class="section-header border-l-blue-600">Manufacturing Inputs & Energy</h2>
+            <h2 class="section-header border-l-blue-600">Paint Manufacturing (Contextra & Putty)</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="card bg-slate-50 border-t-4 border-t-blue-600 p-6 rounded-xl border border-slate-200 shadow-sm">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Brent Crude Oil</p>
                     <p class="text-3xl font-black text-slate-800 mb-1" id="brent-price">Updating...</p>
-                    <p class="text-xs text-slate-400">Global Energy Benchmark</p>
+                    <p class="text-xs text-slate-400">Drives Emulsion Costs</p>
                 </div>
                 <div class="card bg-slate-50 border-t-4 border-t-blue-600 p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Tyre Inputs (Rubber)</p>
-                    <p class="text-3xl font-black text-slate-800 mb-1" id="rubber-price">Updating...</p>
-                    <p class="text-xs text-slate-400">RSS3 Natural Rubber</p>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Titanium Dioxide (TiO2)</p>
+                    <p class="text-2xl font-bold text-slate-800 mb-1">Manual CIF Entry</p>
+                    <p class="text-xs text-slate-400">Contextra Base Input</p>
                 </div>
-                <div class="card bg-slate-50 border-t-4 border-slate-800 p-6 rounded-xl border border-slate-200 shadow-sm bg-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Forex: USD to ETB</p>
-                    <p class="text-3xl font-black text-slate-900 mb-1" id="usd-etb-rate">Updating...</p>
-                    <p class="text-xs text-slate-400">Official CBE Monitor</p>
+                <div class="card bg-slate-50 border-t-4 border-t-blue-600 p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Polymer Resins</p>
+                    <p class="text-2xl font-bold text-slate-800 mb-1">Manual CIF Entry</p>
+                    <p class="text-xs text-slate-400">Wall Putty Input</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Commercial Fleet & Tyre Imports -->
+        <div class="mb-10">
+            <h2 class="section-header border-l-indigo-600">Commercial Fleet & Tyre Sourcing (China)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="card bg-slate-50 border-t-4 border-t-indigo-600 p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Raw Rubber Index</p>
+                    <p class="text-3xl font-black text-slate-800 mb-1" id="rubber-price">Updating...</p>
+                    <p class="text-xs text-slate-400">RSS3 Natural Rubber Futures</p>
+                </div>
+                <div class="card bg-slate-50 border-t-4 border-t-indigo-400 p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Light Truck Tyre (China)</p>
+                    <p class="text-2xl font-black text-slate-800 mb-1">~$50 - $70 / PC</p>
+                    <p class="text-xs text-slate-400">Spec: 7.50R16 (FOB Qingdao)</p>
+                </div>
+                <div class="card bg-slate-50 border-t-4 border-t-indigo-400 p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Heavy Duty Tyre (China)</p>
+                    <p class="text-2xl font-black text-slate-800 mb-1">~$90 - $150 / PC</p>
+                    <p class="text-xs text-slate-400">Spec: 315/80R22.5 (FOB Qingdao)</p>
                 </div>
             </div>
         </div>
 
-        <!-- Global Logistics & Shipping -->
+        <!-- Multi-Currency Forex Matrix -->
         <div class="mb-8">
-            <h2 class="section-header border-l-indigo-600">Global Logistics & Carrier Status</h2>
-            <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-                <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="px-6 py-4 font-bold text-slate-700 uppercase tracking-wider">Carrier</th>
-                            <th class="px-6 py-4 font-bold text-slate-700 uppercase tracking-wider">Primary Route</th>
-                            <th class="px-6 py-4 font-bold text-slate-700 uppercase tracking-wider">Red Sea Status</th>
-                            <th class="px-6 py-4 font-bold text-slate-700 uppercase tracking-wider">Djibouti Dwell Time</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">MSC</td>
-                            <td class="px-6 py-4 text-slate-600">Jebel Ali ➔ Djibouti</td>
-                            <td class="px-6 py-4 text-amber-600 font-semibold">Diverted / Surcharge</td>
-                            <td class="px-6 py-4 text-slate-600">4-6 Days</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Maersk</td>
-                            <td class="px-6 py-4 text-slate-600">Shanghai ➔ Djibouti</td>
-                            <td class="px-6 py-4 text-amber-600 font-semibold">Cape Routing</td>
-                            <td class="px-6 py-4 text-slate-600">3-5 Days</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">CMA CGM</td>
-                            <td class="px-6 py-4 text-slate-600">Europe ➔ East Africa</td>
-                            <td class="px-6 py-4 text-amber-600 font-semibold">Active Escort</td>
-                            <td class="px-6 py-4 text-slate-600">2-4 Days</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">ESL (Ethiopian)</td>
-                            <td class="px-6 py-4 text-slate-600">India/China ➔ Djibouti</td>
-                            <td class="px-6 py-4 text-green-600 font-semibold">Direct Transit</td>
-                            <td class="px-6 py-4 text-slate-600">Priority Berthing</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <h2 class="section-header border-l-purple-600">Global Forex Matrix (ETB Cross-Rates)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
+                    <p class="text-xs font-bold text-slate-500 uppercase">US Dollar (USD)</p>
+                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-usd">--</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Euro (EUR)</p>
+                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-eur">--</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
+                    <p class="text-xs font-bold text-slate-500 uppercase">British Pound (GBP)</p>
+                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-gbp">--</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
+                    <p class="text-xs font-bold text-slate-500 uppercase">Chinese Yuan (CNY)</p>
+                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-cny">--</p>
+                </div>
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
+                    <p class="text-xs font-bold text-slate-500 uppercase">UAE Dirham (AED)</p>
+                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-aed">--</p>
+                </div>
             </div>
         </div>
 

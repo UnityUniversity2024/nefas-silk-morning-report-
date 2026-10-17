@@ -10,26 +10,16 @@ const FILE_NAME = 'index.html';
 
 // --- 1. API FETCHERS (Fast & Reliable) ---
 
-async function scrapeRubberPrice(browser) {
-    console.log('Scraping Rubber from Investing.com...');
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
+async function fetchArabicaPrice() {
+    console.log('Fetching Arabica (KC=F) via API...');
     try {
-        // Updated to the correct Investing.com specific commodity page
-        await page.goto('https://www.investing.com/commodities/rubber-rss3-futures', { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await new Promise(r => setTimeout(r, 8000));
-        const price = await page.evaluate(() => {
-            const el = document.querySelector('[data-test="instrument-price-last"]');
-            return el ? el.innerText.trim() : null;
-        });
-        await page.close();
-        return price ? `$${price} / kg` : null;
+        const response = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/KC=F');
+        const data = await response.json();
+        const price = data.chart.result[0].meta.regularMarketPrice;
+        return price ? '$' + (parseFloat(price) / 100).toFixed(2) + ' / lb' : null;
     } catch (e) {
-        console.log('Warning: Could not scrape Rubber', e.message);
-        await page.close();
+        console.log('Warning: Could not fetch Arabica API', e.message);
         return null;
-    }
-}
     }
 }
 
@@ -88,8 +78,8 @@ async function scrapeRubberPrice(browser) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     try {
-        // Extended wait to ensure Investing.com elements load properly
-        await page.goto('https://www.investing.com/commodities/rubber', { waitUntil: 'domcontentloaded', timeout: 45000 });
+        // Updated to the correct RSS3 Futures page with extended wait time
+        await page.goto('https://www.investing.com/commodities/rubber-rss3-futures', { waitUntil: 'domcontentloaded', timeout: 45000 });
         await new Promise(r => setTimeout(r, 8000));
         const price = await page.evaluate(() => {
             const el = document.querySelector('[data-test="instrument-price-last"]');
@@ -109,7 +99,7 @@ async function scrapeSesamePrice(browser) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     try {
-        // Switched to networkidle2 and 10s timeout to bypass heavy JS rendering
+        // Keeping the extended 10s wait and networkidle2 for Tridge
         await page.goto('https://dir.tridge.com/prices/sesame-seed/CN', { waitUntil: 'networkidle2', timeout: 60000 });
         await new Promise(r => setTimeout(r, 10000));
         const price = await page.evaluate(() => {

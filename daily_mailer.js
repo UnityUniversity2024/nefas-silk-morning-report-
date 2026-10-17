@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 // The file we are updating
-const FILE_NAME = 'index.html'; 
+const FILE_NAME = 'index.html';
 
 // Helper function to scrape Trading Economics (Stealth Mode)
 async function scrapePrice(browser, url) {
@@ -41,35 +41,17 @@ async function scrapePrice(browser, url) {
         return null;
     }
 }
-    console.log(`Scraping live data from: ${url}`);
-    const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
-    
-    try {
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
-        const price = await page.evaluate(() => {
-            const el = document.querySelector('#market_last');
-            return el ? el.innerText.trim() : null;
-        });
-        await page.close();
-        return price;
-    } catch (e) {
-        console.log(`Warning: Could not scrape ${url}`);
-        await page.close();
-        return null; 
-    }
-}
 
 async function generateAndPublishDashboard() {
     let browser;
     try {
         console.log('Launching headless browser...');
-        browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
-        
+        browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+
         // 1. Scrape Live Coffee Prices
         let arabicaLivePrice = await scrapePrice(browser, 'https://tradingeconomics.com/commodity/coffee');
         let robustaLivePrice = await scrapePrice(browser, 'https://tradingeconomics.com/commodity/robusta-coffee');
-        
+
         // Format to Dollars
         if (arabicaLivePrice) arabicaLivePrice = '$' + (parseFloat(arabicaLivePrice) / 100).toFixed(2) + ' / lb';
         if (robustaLivePrice) robustaLivePrice = '$' + robustaLivePrice + ' / MT';
@@ -115,7 +97,7 @@ async function generateAndPublishDashboard() {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.BOSS_EMAIL,
-            subject: `🇪🇹 Nefas Silk Morning Brief - ${dateStr}`,
+            subject: `ET Nefas Silk Morning Brief - ${dateStr}`,
             text: `Good morning,\n\nThe intelligence dashboard has been successfully updated with live global prices.\n\n` +
                   `📊 Coffee Markets:\n` +
                   `NY Arabica: ${arabicaLivePrice || 'N/A'}\n` +
@@ -133,4 +115,5 @@ async function generateAndPublishDashboard() {
         if (browser) await browser.close();
     }
 }
+
 generateAndPublishDashboard();

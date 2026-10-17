@@ -25,7 +25,6 @@ async function fetchArabicaPrice() {
 
 async function fetchUsdEtbRate() {
     console.log('Fetching USD/ETB rate (CBE with Open Exchange fallback)...');
-    // Try Primary: Commercial Bank of Ethiopia (CBE)
     try {
         const dateStr = new Date().toISOString().slice(0, 10);
         const response = await fetch(`https://combanketh.et/cbeapi/daily-exchange-rates/?_limit=1&Date=${dateStr}`);
@@ -41,12 +40,11 @@ async function fetchUsdEtbRate() {
         console.log('Primary CBE API unavailable, switching to global fallback...');
     }
 
-    // Fallback: Open Exchange Rates
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
         const data = await response.json();
         const rate = data.rates && data.rates.ETB;
-        return rate ? `${rate.toFixed(2)} ETB` : null;
+        return rate ? `${rate.toFixed(4)} ETB` : null;
     } catch (e) {
         console.log('Warning: Could not fetch fallback USD/ETB rate', e.message);
         return null;
@@ -80,8 +78,9 @@ async function scrapeRubberPrice(browser) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     try {
-        await page.goto('https://www.investing.com/commodities/rubber', { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await new Promise(r => setTimeout(r, 4000));
+        // Extended wait to ensure Investing.com elements load properly
+        await page.goto('https://www.investing.com/commodities/rubber', { waitUntil: 'domcontentloaded', timeout: 45000 });
+        await new Promise(r => setTimeout(r, 8000));
         const price = await page.evaluate(() => {
             const el = document.querySelector('[data-test="instrument-price-last"]');
             return el ? el.innerText.trim() : null;
@@ -100,12 +99,13 @@ async function scrapeSesamePrice(browser) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     try {
-        await page.goto('https://dir.tridge.com/prices/sesame-seed/CN', { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await new Promise(r => setTimeout(r, 5000));
+        // Switched to networkidle2 and 10s timeout to bypass heavy JS rendering
+        await page.goto('https://dir.tridge.com/prices/sesame-seed/CN', { waitUntil: 'networkidle2', timeout: 60000 });
+        await new Promise(r => setTimeout(r, 10000));
         const price = await page.evaluate(() => {
-            const el = document.querySelector('div[class*="Price__value"]') || 
-                       document.querySelector('.price-value') || 
-                       document.querySelector('span[class*="current-price"]');
+            const el = document.querySelector('.price-value') || 
+                       document.querySelector('span[class*="current-price"]') ||
+                       document.querySelector('div[class*="Price__value"]');
             return el ? el.innerText.trim() : null;
         });
         await page.close();
@@ -122,26 +122,22 @@ async function scrapeSesamePrice(browser) {
 async function generateAndPublishDashboard() {
     let browser;
     try {
-        // Run Fast APIs in parallel
         const [arabicaLivePrice, usdEtbRate] = await Promise.all([
             fetchArabicaPrice(),
             fetchUsdEtbRate()
         ]);
 
-        // Launch browser for scrapers
         browser = await puppeteer.launch({ 
             headless: 'new', 
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'] 
         });
 
-        // Run scrapers in parallel
         const [robustaLivePrice, rubberLivePrice, sesameLivePrice] = await Promise.all([
             scrapeRobustaPrice(browser),
             scrapeRubberPrice(browser),
             scrapeSesamePrice(browser)
         ]);
 
-        // Open local index.html and inject live data
         const page = await browser.newPage();
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);
         await page.goto(filePath, { waitUntil: 'networkidle0' });
@@ -163,7 +159,6 @@ async function generateAndPublishDashboard() {
         console.log('Updated index.html written to disk.');
         await browser.close();
 
-        // Send Email Alert
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { 

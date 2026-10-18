@@ -3,75 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executive Intelligence | Nefas Silk</title>
+    <title>Executive Intelligence | Nefas Silk Paints</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* PDF Engine Overrides */
+        /* Strict PDF Formatting to prevent the layout breaks seen in the old PDF */
         @media print {
             @page { margin: 10mm; size: A4 portrait; }
             body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 11px; }
             .tabs-nav, .no-print { display: none !important; }
-            .print-header-spacing { padding-top: 0; padding-bottom: 12px; border-bottom: 2px solid #0f172a; margin-bottom: 12px; }
-            .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; }
-            .chart-frame { height: 260px !important; min-height: 260px !important; display: block !important; }
-            .shadow-sm, .shadow-md { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            .print-header { padding-top: 0; padding-bottom: 12px; margin-bottom: 15px; border-bottom: 3px solid #b91c1c; }
+            .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 15px !important; }
+            .tab-content { display: block !important; margin-bottom: 20px; }
+            .shadow-xl { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
         }
         
-        /* Smooth UI Transitions */
+        /* Vibrant UI Transitions */
         .tab-btn { transition: all 0.3s ease; }
-        .active-tab { background-color: #0f172a; color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .inactive-tab { background-color: transparent; color: #64748b; }
+        .active-tab { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); color: #ffffff; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3); }
+        .inactive-tab { background-color: #f1f5f9; color: #475569; }
         .inactive-tab:hover { background-color: #e2e8f0; color: #0f172a; }
         .data-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .data-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .data-card:hover { transform: translateY(-3px); box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
 
-    <!-- Global Ticker -->
-    <div class="bg-black text-white text-[11px] font-mono tracking-wider py-2 px-6 flex gap-8 overflow-hidden whitespace-nowrap no-print border-b border-slate-800">
-        <span class="text-slate-400">MARKET FEED <span class="text-emerald-500 animate-pulse ml-2">● LIVE</span></span>
-        <span>ARABICA <span id="ticker-arabica" class="text-emerald-400 ml-2">--</span></span>
-        <span>ROBUSTA <span id="ticker-robusta" class="text-emerald-400 ml-2">--</span></span>
-        <span>BRENT <span id="ticker-brent" class="text-rose-400 ml-2">--</span></span>
-        <span>USD/ETB <span id="ticker-usd" class="text-blue-300 ml-2">--</span></span>
+    <!-- Live Global Ticker -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white text-xs font-bold py-2 px-6 flex gap-8 overflow-hidden whitespace-nowrap no-print shadow-md">
+        <span class="text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Feed
+        </span>
+        <span>Arabica: <span id="ticker-arabica" class="text-emerald-400 ml-1">--</span></span>
+        <span>Robusta: <span id="ticker-robusta" class="text-emerald-400 ml-1">--</span></span>
+        <span>Brent Crude: <span id="ticker-brent" class="text-rose-400 ml-1">--</span></span>
+        <span>USD/ETB: <span id="ticker-usd" class="text-blue-300 ml-1">--</span></span>
     </div>
 
     <div class="max-w-[1400px] mx-auto p-4 md:p-8">
         
-        <!-- Executive Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end pb-6 border-b-2 border-slate-200 print-header-spacing mb-8">
-            <div>
-                <a href="https://www.nefassilkpaints.com" target="_blank" class="block mb-1 no-underline">
-                    <h1 class="text-3xl md:text-4xl font-black tracking-tighter text-slate-900">
-                        <span class="text-red-700">NEFAS SILK</span> PAINTS
+        <!-- Colorful Executive Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 print-header mb-8 border-b-2 border-slate-200">
+            <div class="flex items-center gap-5">
+                <!-- Direct Website Logo Pull -->
+                <div class="bg-white p-2 rounded-xl shadow-md border border-slate-100 h-16 w-16 flex items-center justify-center overflow-hidden">
+                    <img src="https://www.nefassilkpaints.com/wp-content/uploads/2023/01/logo.png" 
+                         alt="NSP Logo" 
+                         onerror="this.outerHTML='<span class=\\'text-2xl font-black text-red-700\\'>NSP</span>'"
+                         class="object-contain w-full h-full" />
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase">
+                        Nefas Silk <span class="text-red-700">Intelligence</span>
                     </h1>
-                </a>
-                <h2 class="text-lg font-bold text-slate-600 tracking-wide uppercase letter-spacing-1">Global Intelligence Desk</h2>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="flex h-2 w-2 relative">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 no-print"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider" id="report-date">Last Updated: Syncing...</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <p class="text-sm text-slate-500 font-bold uppercase tracking-wider" id="report-date">Syncing Market Data...</p>
+                    </div>
                 </div>
             </div>
             <div class="mt-4 md:mt-0 no-print flex gap-3">
-                <button onclick="window.print()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-2">
-                    🖨️ Print Report
-                </button>
-                <a href="Nefas_Silk_Morning_Brief.pdf" download class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center gap-2">
-                    📄 Download PDF
+                <a href="Nefas_Silk_Morning_Brief.pdf" download class="px-6 py-3 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-700/30 transition-all flex items-center gap-2 uppercase tracking-wide">
+                    ⬇ Download PDF
                 </a>
             </div>
         </div>
 
-        <!-- Pill Navigation Tabs -->
-        <div class="flex flex-wrap gap-2 bg-slate-100 p-1.5 rounded-xl mb-8 w-fit tabs-nav border border-slate-200 shadow-inner">
-            <button onclick="switchTab('tab-exports', this)" class="px-6 py-2.5 active-tab text-xs font-bold rounded-lg tab-btn">☕ Agro Exports</button>
-            <button onclick="switchTab('tab-imports', this)" class="px-6 py-2.5 inactive-tab text-xs font-bold rounded-lg tab-btn">🏭 Industrial Imports</button>
-            <button onclick="switchTab('tab-economy', this)" class="px-6 py-2.5 inactive-tab text-xs font-bold rounded-lg tab-btn">🇪🇹 Economy & Forex</button>
-            <button onclick="switchTab('tab-logistics', this)" class="px-6 py-2.5 inactive-tab text-xs font-bold rounded-lg tab-btn">🚢 Global Logistics</button>
+        <!-- Stylish Navigation Tabs -->
+        <div class="flex flex-wrap gap-3 mb-8 w-fit tabs-nav">
+            <button onclick="switchTab('tab-exports', this)" class="px-6 py-3 active-tab text-sm font-bold rounded-xl tab-btn uppercase tracking-wide">☕ Agro Exports</button>
+            <button onclick="switchTab('tab-imports', this)" class="px-6 py-3 inactive-tab text-sm font-bold rounded-xl tab-btn uppercase tracking-wide border border-slate-200">🏭 Industrial Imports</button>
+            <button onclick="switchTab('tab-economy', this)" class="px-6 py-3 inactive-tab text-sm font-bold rounded-xl tab-btn uppercase tracking-wide border border-slate-200">🇪🇹 Economy & Forex</button>
+            <button onclick="switchTab('tab-logistics', this)" class="px-6 py-3 inactive-tab text-sm font-bold rounded-xl tab-btn uppercase tracking-wide border border-slate-200">🚢 Global Logistics</button>
         </div>
 
         <!-- ==========================================
@@ -79,58 +80,62 @@
              ========================================== -->
         <div id="tab-exports" class="tab-content block print:block print:mb-8">
             
+            <!-- Colorful KPI Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm data-card avoid-break relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">NY Arabica (Dec '26)</p>
+                <div class="bg-white p-6 rounded-2xl border-l-4 border-l-emerald-500 shadow-xl data-card avoid-break">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">NY Arabica</p>
                     <p class="text-3xl font-black text-slate-900" id="arabica-price">--</p>
+                    <div class="mt-3 inline-block px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded uppercase">Global Benchmark</div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm data-card avoid-break relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">London Robusta (Nov '26)</p>
+                <div class="bg-white p-6 rounded-2xl border-l-4 border-l-emerald-600 shadow-xl data-card avoid-break">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">London Robusta</p>
                     <p class="text-3xl font-black text-slate-900" id="robusta-price">--</p>
+                    <div class="mt-3 inline-block px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded uppercase">Global Benchmark</div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm data-card avoid-break relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Soya Beans (Global)</p>
+                <div class="bg-white p-6 rounded-2xl border-l-4 border-l-amber-500 shadow-xl data-card avoid-break">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">Soya Beans</p>
                     <p class="text-3xl font-black text-slate-900" id="soy-price">--</p>
+                    <div class="mt-3 inline-block px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded uppercase">Commodity Market</div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm data-card avoid-break relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Whitish Humera Sesame</p>
+                <div class="bg-white p-6 rounded-2xl border-l-4 border-l-orange-500 shadow-xl data-card avoid-break">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">Whitish Humera Sesame</p>
                     <p class="text-2xl font-black text-slate-900 mt-1">RMB 10,700 / MT</p>
-                    <p class="text-[10px] text-slate-400 mt-1">Qingdao Port Import Grade 1</p>
+                    <div class="mt-3 inline-block px-2 py-1 bg-orange-50 text-orange-600 text-[10px] font-bold rounded uppercase">Qingdao Port CIF</div>
                 </div>
             </div>
 
+            <!-- Redesigned Bulletin Board (Replaces Broken Graph) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-                    <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">ET</div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">ETCA & Export Directives</h3>
-                    </div>
-                    <div class="mb-5">
-                        <p class="text-xs font-bold text-slate-900 mb-1">Ethiopian Tea & Coffee Authority</p>
-                        <p class="text-xs text-slate-600 leading-relaxed">Minimum export floor thresholds monitored daily. Contract registrations require ECX-verified certification prior to port dispatch.</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-900 mb-1">EUDR Compliance Framework</p>
-                        <p class="text-xs text-slate-600 leading-relaxed">Ensure national traceability sync is finalized for European coffee export compliance. Geolocation coordinates are mandatory.</p>
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-3xl shadow-xl text-white avoid-break relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                    <h3 class="text-lg font-black uppercase tracking-widest text-emerald-400 mb-6 flex items-center gap-3">
+                        <span>ETCA Directives</span>
+                    </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-sm font-bold text-white mb-2">Minimum Export Floor Thresholds</p>
+                            <p class="text-sm text-slate-300 leading-relaxed">Active monitoring in effect. All forward contract registrations require validated certification from the Ethiopian Commodity Exchange (ECX) prior to port dispatch.</p>
+                        </div>
+                        <div class="pt-5 border-t border-slate-700/50">
+                            <p class="text-sm font-bold text-white mb-2">EUDR Geolocation Compliance</p>
+                            <p class="text-sm text-slate-300 leading-relaxed">Critical deadline approaching. Ensure national traceability synchronization is finalized to clear European customs cordons.</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-                    <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-bold">MK</div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Commodity Market Alerts</h3>
-                    </div>
-                    <div class="mb-5">
-                        <p class="text-xs font-bold text-slate-900 mb-1">Sesame Export Market</p>
-                        <p class="text-xs text-slate-600 leading-relaxed">Destination port stocks stable in Qingdao. Forward deliveries prioritized for quality grade A shipments. Monitor Q4 contract pricing closely.</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-900 mb-1">Soya Bean Supply</p>
-                        <p class="text-xs text-slate-600 leading-relaxed">Global harvest yields pushing prices slightly lower. Evaluate bulk forward contracts for Q1 manufacturing reserves.</p>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break">
+                    <h3 class="text-lg font-black uppercase tracking-widest text-red-700 mb-6 flex items-center gap-3">
+                        <span>Market Intelligence</span>
+                    </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-sm font-bold text-slate-900 mb-2 border-l-2 border-red-500 pl-3">Sesame Export Dynamics</p>
+                            <p class="text-sm text-slate-600 leading-relaxed pl-3">Destination port stocks remain stable in Qingdao. Forward deliveries are strictly prioritized for Grade-A shipments. Q4 pricing matrices require continuous monitoring.</p>
+                        </div>
+                        <div class="pt-5 border-t border-slate-100">
+                            <p class="text-sm font-bold text-slate-900 mb-2 border-l-2 border-blue-500 pl-3">Soya Bean Supply Chain</p>
+                            <p class="text-sm text-slate-600 leading-relaxed pl-3">Global harvest yields are exerting downward pressure on futures. Procurement desk advised to evaluate bulk forward contracts for Q1 manufacturing reserves.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -142,80 +147,94 @@
         <div id="tab-imports" class="tab-content hidden print:block print:mb-8 mt-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Table Section -->
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden avoid-break">
-                    <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
-                        <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Raw Material CIF Sourcing (Djibouti)</h3>
+                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden avoid-break">
+                    <div class="p-6 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest text-blue-700">Raw Material Sourcing (CIF Djibouti)</h3>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto p-4">
                         <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="text-[10px] text-slate-400 uppercase tracking-wider bg-white border-b border-slate-200">
+                            <thead class="text-xs text-slate-400 uppercase tracking-widest border-b-2 border-slate-100">
                                 <tr>
-                                    <th class="px-6 py-4 font-semibold">Material</th>
-                                    <th class="px-6 py-4 font-semibold">Grade & Supplier</th>
-                                    <th class="px-6 py-4 font-semibold text-right">Current Price</th>
-                                    <th class="px-6 py-4 font-semibold">Origin</th>
+                                    <th class="px-4 py-4 font-bold">Category & Material</th>
+                                    <th class="px-4 py-4 font-bold text-right">Target Price</th>
+                                    <th class="px-4 py-4 font-bold">Primary Origin</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tbody class="divide-y divide-slate-50 text-slate-700">
                                 <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Paint Chemicals</td>
-                                    <td class="px-6 py-4 text-xs">TiO2 Rutile (Lomon / Chemours)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-blue-600">$2,850 / MT</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">China / UAE</td>
+                                    <td class="px-4 py-4">
+                                        <p class="font-black text-slate-900">TiO2 (Rutile Grade)</p>
+                                        <p class="text-xs text-slate-500 mt-1">Lomon Billions / Chemours</p>
+                                    </td>
+                                    <td class="px-4 py-4 font-black text-slate-900 text-right text-lg">$2,850 <span class="text-xs text-slate-400 font-normal">/ MT</span></td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">China / UAE</span>
+                                    </td>
                                 </tr>
                                 <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Paint Chemicals</td>
-                                    <td class="px-6 py-4 text-xs">Acrylic Emulsion (SABIC / Dow)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-blue-600">$1,250 / MT</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">Saudi Arabia</td>
+                                    <td class="px-4 py-4">
+                                        <p class="font-black text-slate-900">Acrylic Emulsion</p>
+                                        <p class="text-xs text-slate-500 mt-1">SABIC / Dow Chemical</p>
+                                    </td>
+                                    <td class="px-4 py-4 font-black text-slate-900 text-right text-lg">$1,250 <span class="text-xs text-slate-400 font-normal">/ MT</span></td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Saudi Arabia</span>
+                                    </td>
                                 </tr>
                                 <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Plastics</td>
-                                    <td class="px-6 py-4 text-xs">HDPE Film Grade (Borouge / Sinopec)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-cyan-600">$1,140 / MT</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">Middle East</td>
+                                    <td class="px-4 py-4">
+                                        <p class="font-black text-slate-900">HDPE (Film Grade)</p>
+                                        <p class="text-xs text-slate-500 mt-1">Borouge / Sinopec</p>
+                                    </td>
+                                    <td class="px-4 py-4 font-black text-slate-900 text-right text-lg">$1,140 <span class="text-xs text-slate-400 font-normal">/ MT</span></td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Middle East</span>
+                                    </td>
                                 </tr>
                                 <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Plastics</td>
-                                    <td class="px-6 py-4 text-xs">PVC Resin SG5 (Formosa / LG Chem)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-cyan-600">$890 / MT</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">Taiwan / S. Korea</td>
+                                    <td class="px-4 py-4">
+                                        <p class="font-black text-slate-900">PVC Resin (SG5)</p>
+                                        <p class="text-xs text-slate-500 mt-1">Formosa / LG Chem</p>
+                                    </td>
+                                    <td class="px-4 py-4 font-black text-slate-900 text-right text-lg">$890 <span class="text-xs text-slate-400 font-normal">/ MT</span></td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Taiwan / S. Korea</span>
+                                    </td>
                                 </tr>
                                 <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Fleet Auto</td>
-                                    <td class="px-6 py-4 text-xs">Commercial Tyres (315/80R22.5 Apollo)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-slate-700">$210 / PC</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">India / China</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4 font-bold text-slate-900">Fleet Auto</td>
-                                    <td class="px-6 py-4 text-xs">Light Truck Tyres (7.50R16 Linglong)</td>
-                                    <td class="px-6 py-4 font-black text-slate-900 text-right text-slate-700">$85 / PC</td>
-                                    <td class="px-6 py-4 text-xs text-slate-500">China / India</td>
+                                    <td class="px-4 py-4">
+                                        <p class="font-black text-slate-900">Truck Tyres (315/80R22.5)</p>
+                                        <p class="text-xs text-slate-500 mt-1">Apollo / MRF / Triangle</p>
+                                    </td>
+                                    <td class="px-4 py-4 font-black text-slate-900 text-right text-lg">$210 <span class="text-xs text-slate-400 font-normal">/ PC</span></td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">India / China</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Alerts Section -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3 uppercase tracking-wide">Procurement Alerts</h3>
-                        
-                        <div class="mb-5 p-4 bg-slate-900 rounded-xl text-white shadow-inner">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Raw Rubber Index (RSS3)</p>
-                            <p class="text-3xl font-black text-white" id="rubber-price">--</p>
-                            <p class="text-[10px] text-slate-400 mt-1">Leading indicator for commercial tyre cost trends.</p>
-                        </div>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break flex flex-col">
+                    <h3 class="text-sm font-black text-slate-800 mb-6 uppercase tracking-widest text-red-700">Procurement Alerts</h3>
+                    
+                    <div class="mb-6 p-5 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-2xl text-white shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-5 -mt-5 blur-xl"></div>
+                        <p class="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2">Raw Rubber (RSS3)</p>
+                        <p class="text-4xl font-black text-white tracking-tighter" id="rubber-price">--</p>
+                        <p class="text-xs text-slate-400 mt-3 font-medium">Leading indicator for commercial fleet tyre costs.</p>
+                    </div>
 
-                        <ul class="text-xs text-slate-600 space-y-3">
-                            <li class="flex gap-2"><span class="text-blue-500">■</span> <strong>Tyres:</strong> Indian manufacturers indicating cost pressures on natural rubber supplies.</li>
-                            <li class="flex gap-2"><span class="text-blue-500">■</span> <strong>Paint Inputs:</strong> TiO2 prioritized under Franco-Valuta input schemes.</li>
-                            <li class="flex gap-2"><span class="text-blue-500">■</span> <strong>Plastics:</strong> Maintain early LC pipeline registration at CBE for PVC resin.</li>
-                        </ul>
+                    <div class="flex-grow space-y-4">
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                            <p class="text-sm font-bold text-red-900 mb-1">Fleet Tyre Restocking</p>
+                            <p class="text-xs text-red-700">Indian manufacturers indicating immediate cost pressures on raw natural rubber supplies.</p>
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                            <p class="text-sm font-bold text-blue-900 mb-1">Chemical Inputs</p>
+                            <p class="text-xs text-blue-700">Titanium Dioxide prioritized strictly under Franco-Valuta frameworks.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -227,82 +246,63 @@
         <div id="tab-economy" class="tab-content hidden print:block print:mb-8 mt-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-                    <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                        <div class="w-2 h-6 bg-purple-600 rounded-full"></div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Forex Matrix (ETB Cross-Rates)</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-white transition-colors shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-xs">🇺🇸</span>
-                                <div>
-                                    <p class="font-bold text-sm text-slate-900">USD</p>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">US Dollar</p>
-                                </div>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break">
+                    <h3 class="text-sm font-black text-slate-800 mb-6 uppercase tracking-widest text-purple-700">Forex Matrix (ETB)</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-lg border border-slate-100">🇺🇸</div>
+                                <div><p class="font-black text-slate-900">USD</p><p class="text-xs text-slate-400 uppercase font-bold">US Dollar</p></div>
                             </div>
-                            <span class="text-xl font-black text-slate-900" id="fx-usd">--</span>
+                            <span class="text-2xl font-black text-slate-900" id="fx-usd">--</span>
                         </div>
-                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-white transition-colors shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-xs">🇪🇺</span>
-                                <div>
-                                    <p class="font-bold text-sm text-slate-900">EUR</p>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">Euro</p>
-                                </div>
+                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-lg border border-slate-100">🇪🇺</div>
+                                <div><p class="font-black text-slate-900">EUR</p><p class="text-xs text-slate-400 uppercase font-bold">Euro</p></div>
                             </div>
-                            <span class="text-xl font-black text-slate-900" id="fx-eur">--</span>
+                            <span class="text-2xl font-black text-slate-900" id="fx-eur">--</span>
                         </div>
-                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-white transition-colors shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-xs">🇬🇧</span>
-                                <div>
-                                    <p class="font-bold text-sm text-slate-900">GBP</p>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">British Pound</p>
-                                </div>
+                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-lg border border-slate-100">🇬🇧</div>
+                                <div><p class="font-black text-slate-900">GBP</p><p class="text-xs text-slate-400 uppercase font-bold">British Pound</p></div>
                             </div>
-                            <span class="text-xl font-black text-slate-900" id="fx-gbp">--</span>
+                            <span class="text-2xl font-black text-slate-900" id="fx-gbp">--</span>
                         </div>
-                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-white transition-colors shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-xs">🇨🇳</span>
-                                <div>
-                                    <p class="font-bold text-sm text-slate-900">CNY</p>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">Chinese Yuan</p>
-                                </div>
+                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-lg border border-slate-100">🇦🇪</div>
+                                <div><p class="font-black text-slate-900">AED</p><p class="text-xs text-slate-400 uppercase font-bold">UAE Dirham</p></div>
                             </div>
-                            <span class="text-xl font-black text-slate-900" id="fx-cny">--</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-white transition-colors shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-xs">🇦🇪</span>
-                                <div>
-                                    <p class="font-bold text-sm text-slate-900">AED</p>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-wide">UAE Dirham</p>
-                                </div>
-                            </div>
-                            <span class="text-xl font-black text-slate-900" id="fx-aed">--</span>
+                            <span class="text-2xl font-black text-slate-900" id="fx-aed">--</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-                    <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                        <div class="w-2 h-6 bg-slate-800 rounded-full"></div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">MoTRI & Policy Directives</h3>
-                    </div>
-                    <div class="space-y-5">
-                        <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                            <p class="font-bold text-slate-900 text-sm">Revised Franco-Valuta Regulations</p>
-                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">MoTRI confirms essential manufacturing inputs retain priority clearance channels without central allocation queues.</p>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break">
+                    <h3 class="text-sm font-black text-slate-800 mb-6 uppercase tracking-widest text-slate-900">MoTRI & State Directives</h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-5">
+                            <div class="w-1.5 bg-blue-500 rounded-full"></div>
+                            <div>
+                                <p class="font-black text-slate-900 text-sm uppercase tracking-wide">Revised Franco-Valuta Guidelines</p>
+                                <p class="text-sm text-slate-600 mt-2 leading-relaxed">MoTRI confirms essential manufacturing inputs retain priority clearance channels without central allocation queues.</p>
+                            </div>
                         </div>
-                        <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                            <p class="font-bold text-slate-900 text-sm">Export Retention Directives</p>
-                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">Agro exporters maintain authorized 30-day foreign exchange retention windows for dedicated raw-material imports.</p>
+                        <div class="flex gap-5">
+                            <div class="w-1.5 bg-emerald-500 rounded-full"></div>
+                            <div>
+                                <p class="font-black text-slate-900 text-sm uppercase tracking-wide">Export Retention Directives</p>
+                                <p class="text-sm text-slate-600 mt-2 leading-relaxed">Agro exporters maintain authorized 30-day foreign exchange retention windows for dedicated raw-material imports.</p>
+                            </div>
                         </div>
-                        <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                            <p class="font-bold text-slate-900 text-sm">Industrial Park Duty Exemptions</p>
-                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">Raw plastic polymers and capital machinery imports continue under designated manufacturing incentives.</p>
+                        <div class="flex gap-5">
+                            <div class="w-1.5 bg-amber-500 rounded-full"></div>
+                            <div>
+                                <p class="font-black text-slate-900 text-sm uppercase tracking-wide">Industrial Park Duty Exemptions</p>
+                                <p class="text-sm text-slate-600 mt-2 leading-relaxed">Raw plastic polymers and capital machinery imports continue under designated manufacturing incentives.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -315,74 +315,73 @@
         <div id="tab-logistics" class="tab-content hidden print:block print:mb-8 mt-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm chart-frame h-[400px] avoid-break">
-                    <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Brent Crude (Solvent Proxy)</h3>
-                        <span class="text-lg font-black text-rose-600" id="brent-price">--</span>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break h-[450px] flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Brent Crude (Solvent Proxy)</h3>
+                        <span class="text-xl font-black text-rose-600 bg-rose-50 px-4 py-1 rounded-lg" id="brent-price">--</span>
                     </div>
-                    <div class="tradingview-widget-container h-[300px]">
-                        <div id="tv_oil" class="h-full"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                        <script type="text/javascript">
-                        new TradingView.widget({
-                            "autosize": true,
-                            "symbol": "TVC:UKOIL",
-                            "interval": "D",
-                            "timezone": "Africa/Addis_Ababa",
-                            "theme": "light",
-                            "style": "2",
-                            "locale": "en",
-                            "enable_publishing": false,
-                            "hide_top_toolbar": true,
-                            "container_id": "tv_oil"
-                        });
-                        </script>
+                    <div class="flex-grow rounded-xl overflow-hidden border border-slate-100">
+                        <div class="tradingview-widget-container h-full w-full">
+                            <div id="tv_oil" class="h-full w-full"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                            <script type="text/javascript">
+                            new TradingView.widget({
+                                "autosize": true,
+                                "symbol": "TVC:UKOIL",
+                                "interval": "D",
+                                "timezone": "Africa/Addis_Ababa",
+                                "theme": "light",
+                                "style": "2",
+                                "locale": "en",
+                                "enable_publishing": false,
+                                "hide_top_toolbar": true,
+                                "container_id": "tv_oil"
+                            });
+                            </script>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-                    <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                        <div class="w-2 h-6 bg-red-600 rounded-full"></div>
-                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Global Shipping Lines & Djibouti</h3>
-                    </div>
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl avoid-break">
+                    <h3 class="text-sm font-black text-slate-800 mb-6 uppercase tracking-widest text-blue-700">Carrier Status & Djibouti Metrics</h3>
                     
-                    <div class="space-y-4">
-                        <div class="p-4 border border-slate-200 rounded-xl bg-slate-50 shadow-inner">
-                            <p class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">Carrier Status Matrix</p>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                    <strong class="text-slate-900 text-sm">MSC</strong>
-                                    <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">Cape Reroute (+14 Days)</span>
+                    <div class="space-y-5">
+                        <div class="p-6 border border-slate-200 rounded-2xl bg-slate-50 shadow-inner">
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Major Carrier Routes</p>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                    <strong class="text-slate-900 font-black">MSC</strong>
+                                    <span class="bg-rose-100 text-rose-700 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Cape Reroute (+14D)</span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                    <strong class="text-slate-900 text-sm">Maersk</strong>
-                                    <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">Cape Reroute (+14 Days)</span>
+                                <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                    <strong class="text-slate-900 font-black">Maersk</strong>
+                                    <span class="bg-rose-100 text-rose-700 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Cape Reroute (+14D)</span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                    <strong class="text-slate-900 text-sm">CMA CGM</strong>
-                                    <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">Selective Red Sea Transit</span>
+                                <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                    <strong class="text-slate-900 font-black">CMA CGM</strong>
+                                    <span class="bg-amber-100 text-amber-700 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Selective Transits</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <strong class="text-slate-900 text-sm">ESL (Ethiopian)</strong>
-                                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">Normal Schedules</span>
+                                    <strong class="text-slate-900 font-black">ESL (Ethiopian)</strong>
+                                    <span class="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Normal Schedules</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                        <div class="flex justify-between items-center p-5 border border-slate-100 rounded-2xl bg-white shadow-sm">
                             <div>
-                                <p class="text-sm font-bold text-slate-900">Port of Djibouti (SGTD)</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Berth congestion: 3-5 days wait</p>
+                                <p class="text-sm font-black text-slate-900">Port of Djibouti (SGTD)</p>
+                                <p class="text-xs text-slate-500 mt-1 font-medium">Berth congestion averaging 3-5 days</p>
                             </div>
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Operational</span>
+                            <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-widest">Operational</span>
                         </div>
                         
-                        <div class="flex justify-between items-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+                        <div class="flex justify-between items-center p-5 border border-slate-100 rounded-2xl bg-white shadow-sm">
                             <div>
-                                <p class="text-sm font-bold text-slate-900">Djibouti-Addis Rail Corridor</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Recommended for 40%+ bulk raw chemical cargo</p>
+                                <p class="text-sm font-black text-slate-900">Djibouti-Addis Rail Corridor</p>
+                                <p class="text-xs text-slate-500 mt-1 font-medium">Recommended for bulk chemical cargo</p>
                             </div>
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Clear</span>
+                            <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-widest">Clear</span>
                         </div>
                     </div>
                 </div>
@@ -394,24 +393,20 @@
     <!-- Interactive Logic -->
     <script>
         function switchTab(tabId, btnElement) {
-            // Hide all tabs for web view
             document.querySelectorAll('.tab-content').forEach(el => { 
                 el.classList.remove('block'); 
                 el.classList.add('hidden'); 
             });
-            // Reset buttons
             document.querySelectorAll('.tab-btn').forEach(btn => { 
                 btn.classList.remove('active-tab'); 
                 btn.classList.add('inactive-tab'); 
             });
-            // Activate target
             document.getElementById(tabId).classList.remove('hidden'); 
             document.getElementById(tabId).classList.add('block');
             btnElement.classList.remove('inactive-tab'); 
             btnElement.classList.add('active-tab');
         }
 
-        // Live Ticker Observer
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 const id = mutation.target.id;

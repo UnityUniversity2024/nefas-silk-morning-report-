@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const FILE_NAME = 'index.html';
+const PDF_NAME = 'Nefas_Silk_Morning_Brief.pdf';
 
 async function fetchArabicaPrice() {
     try {
@@ -35,10 +36,11 @@ async function fetchForexRates() {
 }
 
 async function scrapeInvestingCom(browser, url, name) {
+    console.log(`Scraping ${name}...`);
     const page = await browser.newPage();
     try {
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-        await new Promise(r => setTimeout(r, 3000));
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
+        await new Promise(r => setTimeout(r, 4000));
         const price = await page.evaluate(() => {
             const el = document.querySelector('[data-test="instrument-price-last"]');
             return el ? el.innerText.trim() : 'N/A';
@@ -51,10 +53,10 @@ async function scrapeInvestingCom(browser, url, name) {
     }
 }
 
-async function runEmailAutomation() {
+async function runAutomation() {
     let browser;
     try {
-        console.log('Fetching live market data...');
+        console.log('1. Pulling market feeds...');
         const [arabicaLivePrice, forexRates] = await Promise.all([
             fetchArabicaPrice(),
             fetchForexRates()
@@ -62,7 +64,12 @@ async function runEmailAutomation() {
 
         browser = await puppeteer.launch({ 
             headless: 'new', 
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+            args: [
+                '--no-sandbox', 
+                '--disable-setuid-sandbox',
+                '--disable-web-security',
+                '--allow-running-insecure-content'
+            ] 
         });
 
         const robustaRaw = await scrapeInvestingCom(browser, 'https://www.investing.com/commodities/london-coffee', 'Robusta');
@@ -75,11 +82,13 @@ async function runEmailAutomation() {
         const soyLivePrice = soyRaw && soyRaw !== 'N/A' ? '$' + soyRaw + ' / bu' : 'N/A';
         const rubberLivePrice = rubberRaw && rubberRaw !== 'N/A' ? '$' + rubberRaw + ' / kg' : 'N/A';
 
-        // Update the local HTML file for the website dashboard
+        console.log('2. Updating HTML dashboard...');
         const page = await browser.newPage();
+        await page.setViewport({ width: 1440, height: 1800, deviceScaleFactor: 2 });
+
         const filePath = 'file://' + path.join(__dirname, FILE_NAME);
-        try { await page.goto(filePath, { waitUntil: 'domcontentloaded', timeout: 10000 }); } catch (e) {}
-        
+        await page.goto(filePath, { waitUntil: 'load', timeout: 30000 });
+
         const dateStr = new Date().toLocaleString('en-US', { timeZone: 'Africa/Addis_Ababa' });
         
         await page.evaluate((arabica, robusta, brent, soy, rubber, fx, dateStr) => {
@@ -88,84 +97,116 @@ async function runEmailAutomation() {
             if (brent !== 'N/A')   document.getElementById('brent-price').innerText = brent;
             if (soy !== 'N/A')     document.getElementById('soy-price').innerText = soy;
             if (rubber !== 'N/A')  document.getElementById('rubber-price').innerText = rubber;
+            
             if (fx.USD !== 'N/A')  document.getElementById('fx-usd').innerText = fx.USD;
             if (fx.EUR !== 'N/A')  document.getElementById('fx-eur').innerText = fx.EUR;
             if (fx.GBP !== 'N/A')  document.getElementById('fx-gbp').innerText = fx.GBP;
             if (fx.CNY !== 'N/A')  document.getElementById('fx-cny').innerText = fx.CNY;
             if (fx.AED !== 'N/A')  document.getElementById('fx-aed').innerText = fx.AED;
+            
             document.getElementById('report-date').innerText = "Last Updated: " + dateStr;
         }, arabicaLivePrice, robustaLivePrice, brentLivePrice, soyLivePrice, rubberLivePrice, forexRates, dateStr);
 
         const updatedHTML = await page.content();
         fs.writeFileSync(path.join(__dirname, FILE_NAME), updatedHTML);
+
+        console.log('3. Waiting for TradingView graphs & assets to complete rendering...');
+        // Wait 10 seconds for the widget iframes to load and draw vectors
+        await new Promise(r => setTimeout(r, 10000));
+
+        console.log('4. Generating executive PDF with rendered charts...');
+        const pdfPath = path.join(__dirname, PDF_NAME);
+        await page.pdf({ 
+            path: pdfPath, 
+            format: 'A4', 
+            printBackground: true,
+            preferCSSPageSize: true,
+            margin: { top: '8mm', right: '8mm', bottom: '8mm', left: '8mm' }
+        });
+
         await browser.close();
 
-        // Generate the Email HTML Body
-        const githubRepo = process.env.GITHUB_REPOSITORY;
-        const websiteUrl = githubRepo ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/` : 'https://nefassilkpaints.com';
-
-        const emailHTML = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6;">
-                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h2 style="color: #0f172a; margin: 0;">Nefas Silk Intelligence Desk</h2>
-                    <p style="color: #64748b; font-size: 12px; margin: 5px 0 0 0;">${dateStr}</p>
-                </div>
-                
-                <h3 style="color: #b91c1c; border-left: 3px solid #b91c1c; padding-left: 10px;">☕ Agro Exports</h3>
-                <ul style="list-style: none; padding: 0; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                    <li><strong>NY Arabica:</strong> ${arabicaLivePrice}</li>
-                    <li><strong>London Robusta:</strong> ${robustaLivePrice}</li>
-                    <li><strong>Soya Beans:</strong> ${soyLivePrice}</li>
-                </ul>
-
-                <h3 style="color: #2563eb; border-left: 3px solid #2563eb; padding-left: 10px; margin-top: 25px;">🏭 Industrial Inputs & Tyres</h3>
-                <ul style="list-style: none; padding: 0; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                    <li><strong>Brent Crude:</strong> ${brentLivePrice}</li>
-                    <li><strong>Raw Rubber Index:</strong> ${rubberLivePrice}</li>
-                    <li><strong>TiO2 (Rutile):</strong> $2,850 / MT</li>
-                    <li><strong>Commercial Tyres (315/80R22.5):</strong> $210 / PC</li>
-                </ul>
-
-                <h3 style="color: #7e22ce; border-left: 3px solid #7e22ce; padding-left: 10px; margin-top: 25px;">💱 Foreign Exchange Matrix (ETB)</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f8fafc;">
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>USD:</strong> ${forexRates.USD}</td>
-                        <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>EUR:</strong> ${forexRates.EUR}</td>
-                        <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>GBP:</strong> ${forexRates.GBP}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>CNY:</strong> ${forexRates.CNY}</td>
-                        <td style="padding: 10px; border: 1px solid #e2e8f0;" colspan="2"><strong>AED:</strong> ${forexRates.AED}</td>
-                    </tr>
-                </table>
-
-                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                    <a href="${websiteUrl}" style="background-color: #0f172a; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Full Interactive Dashboard & Charts</a>
-                </div>
-            </div>
-        `;
-
-        console.log('Dispatching HTML email...');
+        // 5. Send Email with inline brief + attached PDF
+        console.log('5. Dispatching email to executive team...');
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
+        const githubRepo = process.env.GITHUB_REPOSITORY;
+        const websiteUrl = githubRepo ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/` : 'https://nefassilkpaints.com';
+
+        const emailHTML = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #0f172a; line-height: 1.5;">
+                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px;">
+                    <h2 style="margin: 0; color: #0f172a; font-size: 20px;">Nefas Silk Executive Intelligence Brief</h2>
+                    <p style="margin: 4px 0 0; color: #64748b; font-size: 12px;">Addis Ababa, ET | ${dateStr}</p>
+                </div>
+
+                <p style="font-size: 13px; color: #334155;">Attached is your official <strong>Nefas Silk Morning Brief (PDF)</strong> containing all market charts, freight corridor matrices, and commodity indices.</p>
+
+                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #b91c1c;">☕ Agro Export Snapshot</h4>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 13px;">
+                    <div>• <strong>NY Arabica:</strong> ${arabicaLivePrice}</div>
+                    <div>• <strong>London Robusta:</strong> ${robustaLivePrice}</div>
+                    <div>• <strong>Soya Beans:</strong> ${soyLivePrice}</div>
+                    <div>• <strong>Whitish Humera Sesame:</strong> RMB 10,700 / MT</div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #2563eb;">🏭 Industrial Inputs & Tyres</h4>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 13px;">
+                    <div>• <strong>Brent Crude Oil:</strong> ${brentLivePrice}</div>
+                    <div>• <strong>Raw Rubber Index:</strong> ${rubberLivePrice}</div>
+                    <div>• <strong>Titanium Dioxide (TiO2 Rutile):</strong> $2,850 / MT</div>
+                    <div>• <strong>Commercial Truck Tyres (315/80R22.5):</strong> $210 / PC</div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #059669;">🚢 Global Shipping Lines</h4>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px;">
+                    <div>• <strong>MSC & Maersk:</strong> Cape routing maintained (+14 days).</div>
+                    <div>• <strong>CMA CGM:</strong> Selective Red Sea transit windows.</div>
+                    <div>• <strong>ESL:</strong> Djibouti corridor schedules running normally.</div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #7e22ce;">💱 Foreign Exchange (ETB)</h4>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>USD:</strong> ${forexRates.USD}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>EUR:</strong> ${forexRates.EUR}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>GBP:</strong> ${forexRates.GBP}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>CNY:</strong> ${forexRates.CNY}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>AED:</strong> ${forexRates.AED}</td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center;">
+                    <a href="${websiteUrl}" style="background-color: #0f172a; color: #ffffff; padding: 10px 20px; font-size: 12px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                        Open Interactive Web Dashboard
+                    </a>
+                </div>
+            </div>
+        `;
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.BOSS_EMAIL,
             subject: `ET Nefas Silk Executive Brief - ${dateStr}`,
-            // We use 'html' instead of 'text' and remove the attachments array
-            html: emailHTML 
+            html: emailHTML,
+            attachments: [{ 
+                filename: `Nefas_Silk_Morning_Brief.pdf`, 
+                path: pdfPath 
+            }]
         };
 
         await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully!');
+        console.log('6. Pipeline complete! Email and PDF dispatched successfully.');
+
     } catch (error) {
-        console.error('Pipeline Error:', error);
+        console.error('Fatal Pipeline Error:', error);
         process.exit(1);
     } finally {
-        if (browser) await browser.close().catch(()=>{});
+        if (browser) await browser.close().catch(() => {});
     }
 }
-runEmailAutomation();
+
+runAutomation();

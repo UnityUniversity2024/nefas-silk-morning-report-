@@ -36,7 +36,6 @@ async function fetchForexRates() {
 }
 
 async function scrapeInvestingCom(browser, url, name) {
-    console.log(`Scraping ${name}...`);
     const page = await browser.newPage();
     try {
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
@@ -64,12 +63,7 @@ async function runAutomation() {
 
         browser = await puppeteer.launch({ 
             headless: 'new', 
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox',
-                '--disable-web-security',
-                '--allow-running-insecure-content'
-            ] 
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
         });
 
         const robustaRaw = await scrapeInvestingCom(browser, 'https://www.investing.com/commodities/london-coffee', 'Robusta');
@@ -110,79 +104,79 @@ async function runAutomation() {
         const updatedHTML = await page.content();
         fs.writeFileSync(path.join(__dirname, FILE_NAME), updatedHTML);
 
-        console.log('3. Waiting for TradingView graphs & assets to complete rendering...');
-        // Wait 10 seconds for the widget iframes to load and draw vectors
-        await new Promise(r => setTimeout(r, 10000));
+        console.log('3. Waiting for rendering...');
+        await new Promise(r => setTimeout(r, 6000));
 
-        console.log('4. Generating executive PDF with rendered charts...');
+        console.log('4. Generating PDF...');
         const pdfPath = path.join(__dirname, PDF_NAME);
         await page.pdf({ 
             path: pdfPath, 
             format: 'A4', 
             printBackground: true,
-            preferCSSPageSize: true,
-            margin: { top: '8mm', right: '8mm', bottom: '8mm', left: '8mm' }
+            margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' }
         });
 
         await browser.close();
 
-        // 5. Send Email with inline brief + attached PDF
-        console.log('5. Dispatching email to executive team...');
+        console.log('5. Dispatching email...');
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
         const githubRepo = process.env.GITHUB_REPOSITORY;
-        const websiteUrl = githubRepo ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/` : 'https://nefassilkpaints.com';
+        const websiteUrl = githubRepo ? `https://${githubRepo.split('/')[0]}.github.io/${githubRepo.split('/')[1]}/` : 'https://www.nefassilkpaints.com';
 
         const emailHTML = `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #0f172a; line-height: 1.5;">
-                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px;">
-                    <h2 style="margin: 0; color: #0f172a; font-size: 20px;">Nefas Silk Executive Intelligence Brief</h2>
-                    <p style="margin: 4px 0 0; color: #64748b; font-size: 12px;">Addis Ababa, ET | ${dateStr}</p>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #0f172a; line-height: 1.5; background-color: #ffffff;">
+                <div style="background-color: #0f172a; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                    <h2 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 900; letter-spacing: 1px;"><span style="color: #ef4444;">NEFAS SILK</span> PAINTS</h2>
+                    <h3 style="margin: 6px 0 0; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Intelligence Desk</h3>
                 </div>
 
-                <p style="font-size: 13px; color: #334155;">Attached is your official <strong>Nefas Silk Morning Brief (PDF)</strong> containing all market charts, freight corridor matrices, and commodity indices.</p>
+                <div style="padding: 20px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;">
+                    <p style="margin: 0 0 20px; color: #475569; font-size: 13px; text-align: center;"><strong>${dateStr}</strong><br>Attached is your daily PDF executive summary.</p>
 
-                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #b91c1c;">☕ Agro Export Snapshot</h4>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 13px;">
-                    <div>• <strong>NY Arabica:</strong> ${arabicaLivePrice}</div>
-                    <div>• <strong>London Robusta:</strong> ${robustaLivePrice}</div>
-                    <div>• <strong>Soya Beans:</strong> ${soyLivePrice}</div>
-                    <div>• <strong>Whitish Humera Sesame:</strong> RMB 10,700 / MT</div>
-                </div>
+                    <h4 style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">☕ Agro Exports</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; font-size: 13px;">
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>NY Arabica:</strong><br><span style="color: #059669; font-size: 16px; font-weight: bold;">${arabicaLivePrice}</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Robusta:</strong><br><span style="color: #059669; font-size: 16px; font-weight: bold;">${robustaLivePrice}</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Soya Beans:</strong><br><span style="color: #d97706; font-size: 16px; font-weight: bold;">${soyLivePrice}</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Sesame (Humera):</strong><br><span style="color: #0f172a; font-size: 15px; font-weight: bold;">RMB 10,700/MT</span></div>
+                    </div>
 
-                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #2563eb;">🏭 Industrial Inputs & Tyres</h4>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 13px;">
-                    <div>• <strong>Brent Crude Oil:</strong> ${brentLivePrice}</div>
-                    <div>• <strong>Raw Rubber Index:</strong> ${rubberLivePrice}</div>
-                    <div>• <strong>Titanium Dioxide (TiO2 Rutile):</strong> $2,850 / MT</div>
-                    <div>• <strong>Commercial Truck Tyres (315/80R22.5):</strong> $210 / PC</div>
-                </div>
+                    <h4 style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">🏭 Industrial Sourcing</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; font-size: 13px;">
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Brent Crude:</strong><br><span style="color: #e11d48; font-size: 16px; font-weight: bold;">${brentLivePrice}</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Rubber Index:</strong><br><span style="color: #0f172a; font-size: 16px; font-weight: bold;">${rubberLivePrice}</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>TiO2 (Rutile):</strong><br><span style="color: #2563eb; font-size: 15px; font-weight: bold;">$2,850 / MT</span></div>
+                        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;"><strong>Commercial Tyres:</strong><br><span style="color: #475569; font-size: 15px; font-weight: bold;">$210 / PC</span></div>
+                    </div>
 
-                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #059669;">🚢 Global Shipping Lines</h4>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px;">
-                    <div>• <strong>MSC & Maersk:</strong> Cape routing maintained (+14 days).</div>
-                    <div>• <strong>CMA CGM:</strong> Selective Red Sea transit windows.</div>
-                    <div>• <strong>ESL:</strong> Djibouti corridor schedules running normally.</div>
-                </div>
+                    <h4 style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">🚢 Shipping Logistics</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; background: #f8fafc; border: 1px solid #f1f5f9;">
+                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>MSC:</strong> Rerouted via Cape of Good Hope (+14 days)</td></tr>
+                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Maersk:</strong> Rerouted via Cape of Good Hope (+14 days)</td></tr>
+                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>CMA CGM:</strong> Selective Red Sea transit windows active</td></tr>
+                        <tr><td style="padding: 10px;"><strong>ESL (Ethiopian):</strong> Normal schedules on Djibouti corridor</td></tr>
+                    </table>
 
-                <h4 style="margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #7e22ce;">💱 Foreign Exchange (ETB)</h4>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px; background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <tr>
-                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>USD:</strong> ${forexRates.USD}</td>
-                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>EUR:</strong> ${forexRates.EUR}</td>
-                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>GBP:</strong> ${forexRates.GBP}</td>
-                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>CNY:</strong> ${forexRates.CNY}</td>
-                        <td style="padding: 8px; border: 1px solid #e2e8f0;"><strong>AED:</strong> ${forexRates.AED}</td>
-                    </tr>
-                </table>
+                    <h4 style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">💱 Forex Cross-Rates (ETB)</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; background: #f8fafc; border: 1px solid #f1f5f9;">
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;"><strong>USD:</strong><br>${forexRates.USD}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;"><strong>EUR:</strong><br>${forexRates.EUR}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;"><strong>GBP:</strong><br>${forexRates.GBP}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;"><strong>CNY:</strong><br>${forexRates.CNY}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;"><strong>AED:</strong><br>${forexRates.AED}</td>
+                        </tr>
+                    </table>
 
-                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center;">
-                    <a href="${websiteUrl}" style="background-color: #0f172a; color: #ffffff; padding: 10px 20px; font-size: 12px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                        Open Interactive Web Dashboard
-                    </a>
+                    <div style="margin-top: 30px; text-align: center;">
+                        <a href="${websiteUrl}" style="background-color: #ef4444; color: #ffffff; padding: 12px 24px; font-size: 13px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; letter-spacing: 1px;">
+                            ACCESS LIVE DASHBOARD
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
@@ -192,17 +186,14 @@ async function runAutomation() {
             to: process.env.BOSS_EMAIL,
             subject: `ET Nefas Silk Executive Brief - ${dateStr}`,
             html: emailHTML,
-            attachments: [{ 
-                filename: `Nefas_Silk_Morning_Brief.pdf`, 
-                path: pdfPath 
-            }]
+            attachments: [{ filename: PDF_NAME, path: pdfPath }]
         };
 
         await transporter.sendMail(mailOptions);
-        console.log('6. Pipeline complete! Email and PDF dispatched successfully.');
+        console.log('6. Pipeline complete!');
 
     } catch (error) {
-        console.error('Fatal Pipeline Error:', error);
+        console.error('Pipeline Error:', error);
         process.exit(1);
     } finally {
         if (browser) await browser.close().catch(() => {});

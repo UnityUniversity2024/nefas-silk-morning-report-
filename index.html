@@ -3,205 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nefas Silk Executive Dashboard</title>
+    <title>Morning Intelligence Brief | Nefas Silk</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .card { transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .section-header { border-left: 4px solid #b91c1c; padding-left: 12px; margin-bottom: 20px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.05em; }
+        /* PDF Print Formatting: Unfolds all tabs when printing so the PDF captures everything */
+        @media print {
+            .tab-content { display: block !important; break-inside: avoid; margin-bottom: 2rem; }
+            .tabs-nav { display: none !important; }
+            .print-header-spacing { padding-top: 1rem; }
+            body { background-color: white !important; }
+            .no-print { display: none !important; }
+        }
+        .active-tab { border-bottom: 2px solid #2563eb; color: #1e3a8a; font-weight: 700; }
+        .inactive-tab { color: #64748b; font-weight: 500; }
+        .inactive-tab:hover { color: #334155; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans p-4 md:p-8 antialiased">
-    <div class="max-w-7xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Top Dark Ticker Tape (Hidden on Print) -->
+    <div class="bg-slate-900 text-white text-[11px] font-semibold py-1.5 px-6 flex gap-6 overflow-hidden no-print whitespace-nowrap">
+        <span>NY Arabica: <span id="ticker-arabica" class="text-emerald-400 ml-1">Live</span></span>
+        <span>Robusta: <span id="ticker-robusta" class="text-emerald-400 ml-1">Live</span></span>
+        <span>Brent Crude: <span id="ticker-brent" class="text-rose-400 ml-1">Live</span></span>
+        <span>USD/ETB: <span id="ticker-usd" class="text-blue-300 ml-1">Live</span></span>
+    </div>
+
+    <div class="max-w-[1400px] mx-auto p-4 md:p-8">
         
-        <div class="flex flex-col md:flex-row justify-between items-center border-b-2 border-slate-800 pb-6 mb-8">
-            <div class="flex items-center gap-6">
-                <a href="https://nefassilkpaints.com/" target="_blank">
-                    <img src="https://unityuniversity2024.github.io/nefas-silk-morning-report-/Screenshot%202026-09-16%20120357.png" alt="Nefas Silk Logo" class="h-16 object-contain hover:opacity-80 transition">
-                </a>
-                <div>
-                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Intelligence Desk</h1>
-                    <a href="https://nefassilkpaints.com/" class="text-sm text-red-700 font-bold uppercase tracking-widest hover:underline">Global Operations</a>
-                </div>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-200 print-header-spacing">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Morning Intelligence Brief</h1>
+                <p class="text-sm text-slate-500 font-medium mt-1" id="report-date">Last Updated: Pending...</p>
             </div>
-            <div class="text-right mt-4 md:mt-0 flex flex-col items-end">
-                <a href="Nefas_Silk_Morning_Brief.pdf" download class="mb-2 inline-flex items-center px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold rounded-lg shadow-md transition">
-                    ⬇ Download Executive PDF
+            <div class="flex items-center gap-3 mt-4 md:mt-0 no-print">
+                <a href="https://nefassilkpaints.com" target="_blank" class="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+                    <img src="https://unityuniversity2024.github.io/nefas-silk-morning-report-/Screenshot%202026-09-16%20120357.png" alt="Logo" class="h-5 object-contain">
                 </a>
-                <p class="text-sm font-semibold text-slate-600" id="report-date">Last Updated: Pending...</p>
+                <a href="Nefas_Silk_Morning_Brief.pdf" download class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    Export PDF
+                </a>
             </div>
         </div>
 
-        <div class="mb-10">
-            <h2 class="section-header border-l-slate-800">Live Market Trends</h2>
+        <!-- Navigation Tabs (Hidden on Print) -->
+        <div class="flex flex-wrap gap-6 border-b border-slate-200 mb-8 pt-4 tabs-nav">
+            <button onclick="switchTab('tab-exports', this)" class="pb-3 active-tab text-sm transition tab-btn">
+                ☕ Coffee & Agro Exports
+            </button>
+            <button onclick="switchTab('tab-imports', this)" class="pb-3 inactive-tab text-sm transition tab-btn">
+                🏭 Industrial Imports
+            </button>
+            <button onclick="switchTab('tab-economy', this)" class="pb-3 inactive-tab text-sm transition tab-btn">
+                🇪🇹 Ethiopian Economy
+            </button>
+            <button onclick="switchTab('tab-logistics', this)" class="pb-3 inactive-tab text-sm transition tab-btn">
+                🌍 Global Logistics
+            </button>
+        </div>
+
+        <!-- ==========================================
+             TAB 1: COFFEE & EXPORTS 
+             ========================================== -->
+        <div id="tab-exports" class="tab-content block">
+            
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">NY Arabica (Dec '26)</p>
+                    <p class="text-2xl font-black text-slate-900" id="arabica-price">Updating...</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">London Robusta (Nov '26)</p>
+                    <p class="text-2xl font-black text-slate-900" id="robusta-price">Updating...</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Soya Beans (Global)</p>
+                    <p class="text-2xl font-black text-slate-900" id="soy-price">Updating...</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Whitish Humera Sesame</p>
+                    <p class="text-2xl font-black text-slate-900">RMB 10,700 / MT</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Qingdao Port Import Grade 1</p>
+                </div>
+            </div>
+
+            <!-- Content Split -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4">Arabica Coffee Futures (Live Trend)</h3>
+                    <div class="flex-grow">
+                        <div class="tradingview-widget-container h-full">
+                          <div id="tv_coffee" class="h-full"></div>
+                          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                          <script type="text/javascript">
+                          new TradingView.widget({ "autosize": true, "symbol": "ICEUS:KC1!", "interval": "D", "timezone": "Africa/Addis_Ababa", "theme": "light", "style": "2", "locale": "en", "enable_publishing": false, "hide_top_toolbar": true, "container_id": "tv_coffee" });
+                          </script>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sidebar -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">ETCA & Export Bulletin</h3>
+                    
+                    <div class="mb-5">
+                        <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Ethiopian Tea & Coffee Authority</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">Minimum export price thresholds actively monitored. Contract registrations require updated ECX validation.</p>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Sesame Export Market</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">Chinese buyers reporting high port inventories; Q4 forward contracts slowing. Maintain strict quality controls.</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-1">EUDR Compliance</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">Deadline for geolocation coordinate submission for December shipments approaching. Check national database sync.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 2: INDUSTRIAL IMPORTS 
+             ========================================== -->
+        <div id="tab-imports" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Data Table -->
+                <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 bg-slate-50">
+                        <h3 class="text-sm font-bold text-slate-800">Raw Material Sourcing Prices (CIF Djibouti)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="text-[10px] text-slate-400 uppercase tracking-wider bg-white">
+                                <tr>
+                                    <th class="px-5 py-3 font-semibold">Material Category</th>
+                                    <th class="px-5 py-3 font-semibold">Specific Grade & Brand</th>
+                                    <th class="px-5 py-3 font-semibold">Current Price</th>
+                                    <th class="px-5 py-3 font-semibold">Primary Origin</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Paint Chemicals</td>
+                                    <td class="px-5 py-4 font-medium">Titanium Dioxide (TiO2) Rutile</td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$2,850 / MT</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">China / UAE</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Paint Chemicals</td>
+                                    <td class="px-5 py-4 font-medium">Acrylic Emulsion</td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$1,250 / MT</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">Saudi Arabia</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Plastics</td>
+                                    <td class="px-5 py-4 font-medium">HDPE (Film Grade)</td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$1,140 / MT</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">Middle East</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Plastics</td>
+                                    <td class="px-5 py-4 font-medium">PVC Resin (SG5)</td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$890 / MT</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">Taiwan / S. Korea</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Fleet Auto</td>
+                                    <td class="px-5 py-4 font-medium">Commercial Tyres (315/80R22.5)<br><span class="text-[10px] text-slate-400">Apollo / MRF / Triangle</span></td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$210 / PC</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">India / China</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4">Fleet Auto</td>
+                                    <td class="px-5 py-4 font-medium">Light Truck Tyres (7.50R16)<br><span class="text-[10px] text-slate-400">Linglong / JK Tyre</span></td>
+                                    <td class="px-5 py-4 font-bold text-slate-900">$85 / PC</td>
+                                    <td class="px-5 py-4 text-xs text-slate-500">China / India</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Operational Alerts</h3>
+                    
+                    <div class="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="text-[10px] font-bold text-indigo-600 uppercase">Raw Rubber Index</p>
+                        </div>
+                        <p class="text-xl font-black text-slate-800" id="rubber-price">Updating...</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Leading indicator for all-steel truck tyre production costs.</p>
+                    </div>
+
+                    <div class="flex-grow">
+                        <ul class="text-xs text-slate-600 space-y-3 list-disc pl-4">
+                            <li><strong>Tyre Sourcing:</strong> Indian tyre manufacturers signaling price hikes due to raw natural rubber costs. Accelerate fleet restocking protocols.</li>
+                            <li><strong>Paint Inputs:</strong> Raw material (TiO2) prioritized for Franco-Valuta. Value-addition audits required for FX retention allocation.</li>
+                            <li><strong>Plastics:</strong> Middle East supply chains stabilizing. Ensure proforma invoices for PVC Resin are submitted rapidly to CBE to secure LC allocation.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 3: ETHIOPIAN ECONOMY 
+             ========================================== -->
+        <div id="tab-economy" class="tab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm h-80">
-                    <div class="tradingview-widget-container h-full">
-                      <div id="tv_coffee" class="h-full"></div>
-                      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                      <script type="text/javascript">
-                      new TradingView.widget({ "autosize": true, "symbol": "ICEUS:KC1!", "interval": "D", "timezone": "Africa/Addis_Ababa", "theme": "light", "style": "2", "locale": "en", "enable_publishing": false, "hide_top_toolbar": true, "container_id": "tv_coffee" });
-                      </script>
+                <!-- Forex List -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-5 border-b border-slate-100 pb-2">Foreign Exchange (ETB Cross-Rates)</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:shadow-sm transition">
+                            <div>
+                                <p class="font-bold text-slate-800">USD</p>
+                                <p class="text-[10px] text-slate-400">US Dollar</p>
+                            </div>
+                            <p class="text-lg font-black text-slate-900" id="fx-usd">--</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:shadow-sm transition">
+                            <div>
+                                <p class="font-bold text-slate-800">EUR</p>
+                                <p class="text-[10px] text-slate-400">Euro</p>
+                            </div>
+                            <p class="text-lg font-black text-slate-900" id="fx-eur">--</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:shadow-sm transition">
+                            <div>
+                                <p class="font-bold text-slate-800">GBP</p>
+                                <p class="text-[10px] text-slate-400">British Pound</p>
+                            </div>
+                            <p class="text-lg font-black text-slate-900" id="fx-gbp">--</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:shadow-sm transition">
+                            <div>
+                                <p class="font-bold text-slate-800">CNY</p>
+                                <p class="text-[10px] text-slate-400">Chinese Yuan</p>
+                            </div>
+                            <p class="text-lg font-black text-slate-900" id="fx-cny">--</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:shadow-sm transition bg-slate-50">
+                            <div>
+                                <p class="font-bold text-slate-800">AED</p>
+                                <p class="text-[10px] text-slate-400">UAE Dirham</p>
+                            </div>
+                            <p class="text-lg font-black text-slate-900" id="fx-aed">--</p>
+                        </div>
                     </div>
                 </div>
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm h-80">
-                    <div class="tradingview-widget-container h-full">
-                      <div id="tv_oil" class="h-full"></div>
-                      <script type="text/javascript">
-                      new TradingView.widget({ "autosize": true, "symbol": "TVC:UKOIL", "interval": "D", "timezone": "Africa/Addis_Ababa", "theme": "light", "style": "2", "locale": "en", "enable_publishing": false, "hide_top_toolbar": true, "container_id": "tv_oil" });
-                      </script>
+
+                <!-- Policy Directives -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-5 border-b border-slate-100 pb-2">MoTRI & Policy Directives</h3>
+                    
+                    <div class="space-y-5">
+                        <div class="flex gap-4">
+                            <div class="mt-1 flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">📄</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Revised Franco-Valuta Regulations</p>
+                                <p class="text-xs text-slate-600 mt-1">Ministry of Trade and Regional Integration (MoTRI) announces updated list of essential industrial inputs eligible for Franco-Valuta import without central bank queue. Tyres and specific chemicals remain under strict review.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="mt-1 flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">💵</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Export Retention Policy</p>
+                                <p class="text-xs text-slate-600 mt-1">Exporters can retain 50% of foreign currency earnings in their accounts for up to 30 days to facilitate raw material import financing.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="mt-1 flex-shrink-0 w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600">🏢</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Industrial Park Tax Incentives</p>
+                                <p class="text-xs text-slate-600 mt-1">New circular detailing duty-free import parameters for manufacturing entities operating within Hawassa and Bole Lemi industrial parks. Focus on import substitution of plastics.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mb-10">
-            <h2 class="section-header border-l-blue-600">Raw Material Sourcing (CIF Djibouti)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div class="card bg-slate-50 border-t-4 border-t-blue-600 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Titanium Dioxide (TiO2)</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$2,850 / MT</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-green-600">▲ +2.1%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Grade:</strong> Rutile<br><strong>Suppliers:</strong> Lomon Billions / Chemours<br><strong>Origin:</strong> China / UAE
-                        </p>
+        <!-- ==========================================
+             TAB 4: GLOBAL LOGISTICS 
+             ========================================== -->
+        <div id="tab-logistics" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Market Feed & Oil Chart -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col h-[500px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+                        <h3 class="text-sm font-bold text-slate-800">Global Energy Benchmark (Paint Solvent Proxy)</h3>
+                        <span class="text-xs font-bold text-rose-600" id="brent-price">Updating...</span>
                     </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Raw material prioritized for Franco-Valuta. Value-addition audits required for FX retention allocation.</p>
-                    </div>
-                </div>
-                <div class="card bg-slate-50 border-t-4 border-t-blue-500 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Acrylic Emulsion</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$1,250 / MT</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-slate-400">- 0.0%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Grade:</strong> Water-based paint<br><strong>Suppliers:</strong> SABIC / Dow<br><strong>Origin:</strong> Saudi Arabia
-                        </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Shift sourcing back to Saudi channels to optimize freight costs amidst Red Sea diversions.</p>
+                    <div class="flex-grow">
+                        <div class="tradingview-widget-container h-full">
+                          <div id="tv_oil" class="h-full"></div>
+                          <script type="text/javascript">
+                          new TradingView.widget({ "autosize": true, "symbol": "TVC:UKOIL", "interval": "D", "timezone": "Africa/Addis_Ababa", "theme": "light", "style": "2", "locale": "en", "enable_publishing": false, "hide_top_toolbar": true, "container_id": "tv_oil" });
+                          </script>
+                        </div>
                     </div>
                 </div>
-                <div class="card bg-slate-50 border-t-4 border-t-cyan-600 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">HDPE</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$1,140 / MT</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-red-500">▼ -1.5%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Grade:</strong> Film Grade<br><strong>Suppliers:</strong> Borouge / Sinopec<br><strong>Origin:</strong> UAE / China
-                        </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Middle East supply chains stabilizing. Red Sea routing adds +14 days inbound lead times from Asia.</p>
-                    </div>
-                </div>
-                <div class="card bg-slate-50 border-t-4 border-t-cyan-500 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">PVC Resin</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$890 / MT</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-green-600">▲ +0.8%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Grade:</strong> SG5 Grade<br><strong>Suppliers:</strong> Formosa / LG Chem<br><strong>Origin:</strong> Taiwan / S. Korea
-                        </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Ensure proforma invoices are submitted rapidly to CBE to secure LC allocation queue placement.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="mb-10">
-            <h2 class="section-header border-l-indigo-600">Commercial Fleet & Tyre Sourcing</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="card bg-slate-50 border-t-4 border-t-indigo-600 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Commercial Truck Tyres</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$210 / PC</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-green-600">▲ +1.5%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Spec:</strong> 315/80R22.5<br><strong>Brands:</strong> Apollo / MRF / Triangle<br><strong>Origin:</strong> India / China
-                        </p>
+                <!-- Logistics Alerts -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-5 border-b border-slate-100 pb-2">Red Sea & Djibouti Logistics</h3>
+                    
+                    <div class="bg-slate-900 text-center p-6 rounded-xl mb-6 shadow-inner">
+                        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 mb-3">
+                            ⚠️
+                        </div>
+                        <h4 class="text-white font-bold tracking-widest uppercase text-sm mb-1">Red Sea Routing Alert</h4>
+                        <p class="text-slate-400 text-xs">High Risk Zone active. Major carriers diverting around Cape of Good Hope.</p>
                     </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Indian manufacturers signaling price hikes due to raw rubber costs. Accelerate fleet restocking protocols.</p>
-                    </div>
-                </div>
-                <div class="card bg-slate-50 border-t-4 border-t-indigo-400 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Light Truck Tyres</p>
-                        <p class="text-2xl font-black text-slate-800 mb-1">$85 / PC</p>
-                        <p class="text-xs text-slate-600 font-semibold mb-2 text-slate-400">- 0.0%</p>
-                        <p class="text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-2">
-                            <strong>Spec:</strong> 7.50R16<br><strong>Brands:</strong> Linglong / JK Tyre<br><strong>Origin:</strong> China / India
-                        </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Monitor upcoming draft revisions to excise taxes on imported finished rubber products.</p>
-                    </div>
-                </div>
-                <div class="card bg-slate-50 border-t-4 border-t-indigo-600 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Raw Rubber Index</p>
-                        <p class="text-3xl font-black text-slate-800 mb-1" id="rubber-price">Updating...</p>
-                        <p class="text-xs text-slate-400">RSS3 Natural Rubber Futures (Live Proxy)</p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-200">
-                        <p class="text-xs font-semibold text-slate-700">Operational Brief:</p>
-                        <p class="text-xs text-slate-500 mt-1">Leading indicator for Chinese all-steel truck tyre production costs and future commercial procurement.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="mb-10">
-            <h2 class="section-header border-l-red-600">Logistics & Supply Chain Corridors</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
-                    <p class="font-bold text-slate-800 mb-2">Red Sea Diversions</p>
-                    <p class="text-sm text-slate-600">Extended routes around the Cape of Good Hope are adding approximately <strong>+14 days</strong> to inbound resin and pigment lead times from Asia.</p>
-                </div>
-                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
-                    <p class="font-bold text-slate-800 mb-2">Ethiopia-Djibouti Railway</p>
-                    <p class="text-sm text-slate-600">Shift <strong>40% of inbound chemical shipments</strong> from trucking to rail networks to bypass localized road delays.</p>
-                </div>
-            </div>
-        </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Port of Djibouti (SGTD)</p>
+                                <p class="text-[10px] text-slate-500">Vessel congestion: Moderate (3-5 days wait)</p>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Operational</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Djibouti-Addis Ababa Corridor</p>
+                                <p class="text-[10px] text-slate-500">Shift 40% of chemical shipments to railway to bypass road delays.</p>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Clear</span>
+                        </div>
 
-        <div class="mb-8">
-            <h2 class="section-header border-l-purple-600">Global Forex Matrix (ETB Cross-Rates)</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase">US Dollar (USD)</p>
-                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-usd">--</p>
-                </div>
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase">Euro (EUR)</p>
-                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-eur">--</p>
-                </div>
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase">British Pound (GBP)</p>
-                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-gbp">--</p>
-                </div>
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase">Chinese Yuan (CNY)</p>
-                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-cny">--</p>
-                </div>
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase">UAE Dirham (AED)</p>
-                    <p class="text-xl font-black text-slate-900 mt-1" id="fx-aed">--</p>
+                        <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Red Sea Transit</p>
+                                <p class="text-[10px] text-slate-500">Extended routes add +14 days to inbound resin/pigment lead times.</p>
+                            </div>
+                            <span class="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-bold rounded uppercase">Disrupted</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
+
+    <!-- JavaScript for Tab Switching (Ignored on Print) -->
+    <script>
+        function switchTab(tabId, btnElement) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('block');
+                el.classList.add('hidden');
+            });
+            // Reset all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('inactive-tab');
+            });
+            
+            // Show target tab
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            
+            // Highlight active button
+            btnElement.classList.remove('inactive-tab');
+            btnElement.classList.add('active-tab');
+        }
+
+        // Mutation Observer to update the top ticker automatically when Puppeteer injects prices
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                const id = mutation.target.id;
+                if(id === 'arabica-price') document.getElementById('ticker-arabica').innerText = mutation.target.innerText;
+                if(id === 'robusta-price') document.getElementById('ticker-robusta').innerText = mutation.target.innerText;
+                if(id === 'brent-price') document.getElementById('ticker-brent').innerText = mutation.target.innerText;
+                if(id === 'fx-usd') document.getElementById('ticker-usd').innerText = mutation.target.innerText;
+            });
+        });
+
+        const config = { childList: true, characterData: true, subtree: true };
+        ['arabica-price', 'robusta-price', 'brent-price', 'fx-usd'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) observer.observe(el, config);
+        });
+    </script>
 </body>
 </html>

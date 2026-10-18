@@ -36,6 +36,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html Nefas_Silk_Morning_Brief.pdf
-          git commit -m "Auto-update dashboard and executive PDF" || exit 0
+          git add index.html
+          git commit -m "Auto-update HTML dashboard" || exit 0
           git push
